@@ -7,4 +7,13 @@ QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
 -- Compiling entity moving_average
 -- Compiling architecture rtl of moving_average
 
+} {} {}} C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
+QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity test_pre_next_avg
+-- Compiling architecture behavior of test_pre_next_avg
+
 } {} {}}
