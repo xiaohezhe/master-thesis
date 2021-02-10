@@ -39,5 +39,5 @@ end process p_average;
 
   --o_data             <= std_logic_vector(r_acc(data_bits+group_length-1 downto group_length));  -- divide by 2^group_length
   oldest_data	     <= std_logic_vector(output_oldest_data);
-  o_data             <= std_logic_vector(rcc_acc);
+  o_data             <= std_logic_vector(r_acc);
 end rtl;

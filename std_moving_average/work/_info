@@ -29,16 +29,17 @@ n@_opt1
 R3
 R0
 T_opt2
-!s110 1612979357
-V@8[H8`EzhP=0]=1W?fCiA3
+!s110 1612993574
+VmQ[[e`LLh@0n8z:Sa`ejd1
 04 17 8 work test_pre_next_avg behavior 1
-=1-04d9f5f73c8e-60241c9d-3c-3e20
+=1-04d9f5f73c8e-60245426-35f-4928
 R1
 R2
 n@_opt2
 R3
+R0
 Emoving_average
-Z4 w1612975280
+Z4 w1612981459
 Z5 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 Z6 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
 Z7 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
@@ -47,13 +48,13 @@ Z9 8C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
 Z10 FC:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
 l0
 L5
-Vh?giDLHWi?9h2O:P75[iE3
-!s100 mZZ5LKCZ02GXhd7B?<_Lo2
+V47KUbW<Z[i`W3lZJ72cb^3
+!s100 R?S91WfzZMM]2ca_=kllJ2
 Z11 OL;C;10.6c;65
 32
-Z12 !s110 1612979332
+Z12 !s110 1612994000
 !i10b 1
-Z13 !s108 1612979332.000000
+Z13 !s108 1612994000.000000
 Z14 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
 Z15 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
 !i113 0
@@ -63,7 +64,7 @@ Artl
 R5
 R6
 R7
-DEx4 work 14 moving_average 0 22 h?giDLHWi?9h2O:P75[iE3
+DEx4 work 14 moving_average 0 22 47KUbW<Z[i`W3lZJ72cb^3
 l29
 L19
 VlEAUSQccj:D9<_DiE]@MS0
@@ -79,7 +80,7 @@ R15
 R16
 R17
 Eprevious_average_and_next_average
-Z18 w1612979323
+Z18 w1612993563
 R5
 R6
 R7
@@ -88,8 +89,8 @@ Z19 8C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_
 Z20 FC:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
 l0
 L6
-V2Jf8;I`AaFM]RANKjMOO12
-!s100 ^WPFX?bB5W@VIlC^8PQ?H2
+Vgn^6b3BT`Mc:>OggoFn^N1
+!s100 @3L8_dkJMR?5?zN9kZ[:D1
 R11
 32
 R12
@@ -104,11 +105,11 @@ Aarc_previous_average_and_next_average
 R5
 R6
 R7
-DEx4 work 33 previous_average_and_next_average 0 22 2Jf8;I`AaFM]RANKjMOO12
+DEx4 work 33 previous_average_and_next_average 0 22 gn^6b3BT`Mc:>OggoFn^N1
 l49
 L19
-VhCZ7egKQcSjI4fPT;HlWn2
-!s100 FTZ7MOW`A5c^EndWE4gWG2
+VB>IZjf8L5o;gOPmSNb]d31
+!s100 o]<kMUQM1c:6=2jJ<InG?3
 R11
 32
 R12
@@ -120,7 +121,7 @@ R22
 R16
 R17
 Etest_pre_next_avg
-Z23 w1612977468
+Z23 w1612993198
 R5
 R6
 R7
@@ -128,9 +129,9 @@ R8
 Z24 8C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
 Z25 FC:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
 l0
-L5
-V;3HKjXo=<@T;=UI^djI`_3
-!s100 3HXYI^PWOPOC1?6TS^PRD1
+L6
+V?`DRmVNXKJz3@49G4bF0n3
+!s100 K?^7mXNjFCVFozLLYh37X0
 R11
 32
 R12
@@ -145,11 +146,11 @@ Abehavior
 R5
 R6
 R7
-DEx4 work 17 test_pre_next_avg 0 22 ;3HKjXo=<@T;=UI^djI`_3
-l38
-L8
-VPL8Tz>YJA>FD7naTR@l4k1
-!s100 <ai;NQK_47<o8nNdY=loa1
+Z28 DEx4 work 17 test_pre_next_avg 0 22 ?`DRmVNXKJz3@49G4bF0n3
+l37
+L9
+Z29 Vnh=:8bBmSh47H^N1E_FJd2
+Z30 !s100 J<<_gN[]@:YWPHTKSdlX23
 R11
 32
 R12

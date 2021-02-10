@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 --get the data's previous group average value and next group average value
 entity previous_average_and_next_average is
 generic (
-  data_bits                     : integer := 8;
+  data_bits                 : integer := 16;
   group_length              : integer := 2 );
 port (
 	  i_clk                      : in  std_logic;
@@ -66,22 +66,6 @@ port map(
 
 oldest_data_reg_signed <= signed(oldest_data_reg_vector);
 
---total_average : process(i_clk)
---begin
- --if(rising_edge(i_clk)) then
---concurrent signal assignment statements
-	--sum_reg <= signed(o_data_previous_reg)+signed(o_data_next_reg);
-	--average_reg<= signed((signed(o_data_previous_reg)+signed(o_data_next_reg))(data_bits+group_length downto (group_length+1))); --divide by 8, shift 3 bits
-	--subtract_reg<= signed(oldest_data_reg_signed-signed((signed(o_data_previous_reg)+signed(o_data_next_reg))(data_bits+group_length downto (group_length+1))); --divide by 8, shift 3 bits
---);--midddle data-average data
-	--fraction_reg<= signed((signed(o_data_previous_reg)+signed(o_data_next_reg))(group_length downto 0));
-
---end if;
---end process total_average;
-
---o_data_average <= std_logic_vector(average_reg);
---o_data_subtract <= std_logic_vector(subtract_reg);
---o_data_fraction<=std_logic_vector(fraction_reg);
 
 sum_reg <= signed(o_data_previous_reg)+signed(o_data_next_reg);
 o_data_average <= std_logic_vector(sum_reg(data_bits+group_length downto (group_length+1)));

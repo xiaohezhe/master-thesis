@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 --get the data's previous group average value and next group average value
 entity previous_average_and_next_average is
 generic (
-  data_bits                     : integer := 8;
+  data_bits                 : integer := 16;
   group_length              : integer := 2 );
 port (
 	  i_clk                      : in  std_logic;
@@ -35,7 +35,7 @@ signal fraction_reg: signed(group_length downto 0):=(others => '0');
 
 component moving_average
 generic (
-  data_bits                  : integer := 8;
+  data_bits                  : integer := 16;
   group_length               : integer := 2 );
 port (
   i_clk                      : in  std_logic;

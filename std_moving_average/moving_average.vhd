@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity moving_average is
 generic (
-  data_bits                  : integer := 8;
+  data_bits                  : integer := 16;
   group_length               : integer := 2 );
 port (
   i_clk                      : in  std_logic;
