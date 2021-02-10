@@ -1,0 +1,121 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/15695/Documents/VHDL/DPTC
+T_opt
+!s110 1612975810
+VITWCl;bJ56=I=DBGL7O];0
+04 17 22 work moving_average_tb arch_moving_average_tb 1
+=1-04d9f5f73c8e-60240ec2-2e5-4214
+Z1 o-quiet -auto_acc_if_foreign -work work
+Z2 tCvgOpt 0
+n@_opt
+Z3 OL;O;10.6c;65
+T_opt1
+!s110 1612945986
+VA@fN80`?9BC;I[OzTJAZQ3
+04 33 37 work previous_average_and_next_average arc_previous_average_and_next_average 1
+=1-04d9f5f73c8e-60239a41-3e5-3c38
+R1
+R2
+n@_opt1
+R3
+R0
+T_opt2
+!s110 1612946507
+Vzk4dRf0]jCAf6<>75z=9X3
+04 17 8 work test_pre_next_avg behavior 1
+=1-04d9f5f73c8e-60239c4b-268-1170
+R1
+R2
+n@_opt2
+R3
+R0
+Emoving_average
+Z4 w1612975280
+Z5 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z6 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z7 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z8 dC:/Users/15695/Documents/master-thesis/std_moving_average
+Z9 8C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
+Z10 FC:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
+l0
+L5
+Vh?giDLHWi?9h2O:P75[iE3
+!s100 mZZ5LKCZ02GXhd7B?<_Lo2
+Z11 OL;C;10.6c;65
+32
+Z12 !s110 1612975803
+!i10b 1
+Z13 !s108 1612975803.000000
+Z14 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
+Z15 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
+!i113 0
+Z16 o-work work -2002 -explicit
+Z17 tExplicit 1 CvgOpt 0
+Artl
+R5
+R6
+R7
+DEx4 work 14 moving_average 0 22 h?giDLHWi?9h2O:P75[iE3
+l29
+L19
+VlEAUSQccj:D9<_DiE]@MS0
+!s100 ;bzg=KVaeikn@QhiG?omR1
+R11
+32
+R12
+!i10b 1
+R13
+R14
+R15
+!i113 0
+R16
+R17
+Emoving_average_tb
+Z18 w1612975800
+R5
+R6
+R7
+R8
+Z19 8C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average_tb.vhd
+Z20 FC:/Users/15695/Documents/master-thesis/std_moving_average/moving_average_tb.vhd
+l0
+L6
+VI4Mng]DS[fclC@AJYI[?n2
+!s100 EnmQPCYS02Pz;ladc0[`m0
+R11
+32
+R12
+!i10b 1
+R13
+Z21 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average_tb.vhd|
+Z22 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average_tb.vhd|
+!i113 0
+R16
+R17
+Aarch_moving_average_tb
+R5
+R6
+R7
+DEx4 work 17 moving_average_tb 0 22 I4Mng]DS[fclC@AJYI[?n2
+l35
+L9
+VQlF7MYkgg3<FZk1e^kZXN0
+!s100 zSDW0febDHLn:G2dAn9Wf3
+R11
+32
+R12
+!i10b 1
+R13
+R21
+R22
+!i113 0
+R16
+R17
