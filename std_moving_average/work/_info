@@ -19,145 +19,185 @@ n@_opt
 Z3 OL;O;10.6c;65
 R0
 T_opt1
-!s110 1612945986
-VA@fN80`?9BC;I[OzTJAZQ3
-04 33 37 work previous_average_and_next_average arc_previous_average_and_next_average 1
-=1-04d9f5f73c8e-60239a41-3e5-3c38
+!s110 1613056982
+VYU2H2K^f3i;>dRCP8hzgz1
+Z4 04 17 8 work test_pre_next_avg behavior 1
+=1-04d9f5f73c8e-60254bd6-ca-244c
 R1
 R2
 n@_opt1
 R3
-R0
 T_opt2
 !s110 1612993574
 VmQ[[e`LLh@0n8z:Sa`ejd1
-04 17 8 work test_pre_next_avg behavior 1
+R4
 =1-04d9f5f73c8e-60245426-35f-4928
 R1
 R2
 n@_opt2
 R3
 R0
+Eguarded_filter
+Z5 w1613056068
+Z6 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z7 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z8 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z9 dC:/Users/15695/Documents/master-thesis/std_moving_average
+Z10 8C:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd
+Z11 FC:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd
+l0
+L5
+V=:KlCSGzemL3O]40lnD`90
+!s100 B]1cJdkGgMAD8z`m12=aV0
+Z12 OL;C;10.6c;65
+32
+Z13 !s110 1613056975
+!i10b 1
+Z14 !s108 1613056975.000000
+Z15 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd|
+Z16 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd|
+!i113 0
+Z17 o-work work -2002 -explicit
+Z18 tExplicit 1 CvgOpt 0
+Abehavior
+R6
+R7
+R8
+DEx4 work 14 guarded_filter 0 22 =:KlCSGzemL3O]40lnD`90
+l21
+L17
+VS`XYYLjeb6BjDzN`0AU__0
+!s100 ;@^c_7YD>QhRQ`1QX=X3H2
+R12
+32
+R13
+!i10b 1
+R14
+R15
+R16
+!i113 0
+R17
+R18
 Emoving_average
-Z4 w1612981459
-Z5 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
-Z6 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
-Z7 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
-Z8 dC:/Users/15695/Documents/master-thesis/std_moving_average
-Z9 8C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
-Z10 FC:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
+Z19 w1612981459
+R6
+R7
+R8
+R9
+Z20 8C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
+Z21 FC:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
 l0
 L5
 V47KUbW<Z[i`W3lZJ72cb^3
 !s100 R?S91WfzZMM]2ca_=kllJ2
-Z11 OL;C;10.6c;65
+R12
 32
-Z12 !s110 1612994000
+R13
 !i10b 1
-Z13 !s108 1612994000.000000
-Z14 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
-Z15 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
+R14
+Z22 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
+Z23 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd|
 !i113 0
-Z16 o-work work -2002 -explicit
-Z17 tExplicit 1 CvgOpt 0
+R17
+R18
 Artl
-R5
 R6
 R7
+R8
 DEx4 work 14 moving_average 0 22 47KUbW<Z[i`W3lZJ72cb^3
 l29
 L19
 VlEAUSQccj:D9<_DiE]@MS0
 !s100 ;bzg=KVaeikn@QhiG?omR1
-R11
-32
 R12
-!i10b 1
+32
 R13
+!i10b 1
 R14
-R15
+R22
+R23
 !i113 0
-R16
 R17
+R18
 Eprevious_average_and_next_average
-Z18 w1612993563
-R5
+Z24 w1613056817
 R6
 R7
 R8
-Z19 8C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
-Z20 FC:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
+R9
+Z25 8C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
+Z26 FC:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
 l0
 L6
-Vgn^6b3BT`Mc:>OggoFn^N1
-!s100 @3L8_dkJMR?5?zN9kZ[:D1
-R11
-32
+Vi4o7F?L:4M:G=Lj5]S;O<0
+!s100 l>lSoMZ<PjUDCJz?O[=f>3
 R12
-!i10b 1
+32
 R13
-Z21 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd|
-Z22 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd|
+!i10b 1
+R14
+Z27 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd|
+Z28 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd|
 !i113 0
-R16
 R17
+R18
 Aarc_previous_average_and_next_average
-R5
-R6
-R7
-DEx4 work 33 previous_average_and_next_average 0 22 gn^6b3BT`Mc:>OggoFn^N1
-l49
-L19
-VB>IZjf8L5o;gOPmSNb]d31
-!s100 o]<kMUQM1c:6=2jJ<InG?3
-R11
-32
-R12
-!i10b 1
-R13
-R21
-R22
-!i113 0
-R16
-R17
-Etest_pre_next_avg
-Z23 w1612993198
-R5
 R6
 R7
 R8
-Z24 8C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
-Z25 FC:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
+DEx4 work 33 previous_average_and_next_average 0 22 i4o7F?L:4M:G=Lj5]S;O<0
+l65
+L19
+VVWd?mFgi`doJIakG^K;KG0
+!s100 To@8]ZKBcohfR^kD_WQmX2
+R12
+32
+R13
+!i10b 1
+R14
+R27
+R28
+!i113 0
+R17
+R18
+Etest_pre_next_avg
+Z29 w1613056972
+R6
+R7
+R8
+R9
+Z30 8C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
+Z31 FC:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
 l0
 L6
 V?`DRmVNXKJz3@49G4bF0n3
 !s100 K?^7mXNjFCVFozLLYh37X0
-R11
-32
 R12
-!i10b 1
+32
 R13
-Z26 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd|
-Z27 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd|
+!i10b 1
+R14
+Z32 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd|
+Z33 !s107 C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd|
 !i113 0
-R16
 R17
+R18
 Abehavior
-R5
 R6
 R7
-Z28 DEx4 work 17 test_pre_next_avg 0 22 ?`DRmVNXKJz3@49G4bF0n3
-l37
+R8
+DEx4 work 17 test_pre_next_avg 0 22 ?`DRmVNXKJz3@49G4bF0n3
+l35
 L9
-Z29 Vnh=:8bBmSh47H^N1E_FJd2
-Z30 !s100 J<<_gN[]@:YWPHTKSdlX23
-R11
-32
+Vdid2>j?Hk<Z9gZ8^YFMl?3
+!s100 nH7z]eeYLICEUR>5l^HDJ1
 R12
-!i10b 1
+32
 R13
-R26
-R27
+!i10b 1
+R14
+R32
+R33
 !i113 0
-R16
 R17
+R18

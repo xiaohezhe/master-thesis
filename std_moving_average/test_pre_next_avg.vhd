@@ -16,9 +16,9 @@ generic (
 port (
 	  i_clk                      : in  std_logic;
   	  i_data                     : in  std_logic_vector(data_bits-1 downto 0);
-	  o_data_average	     : out std_logic_vector(data_bits-1 downto 0);
-	  o_data_subtract	     : out std_logic_vector(data_bits-1 downto 0);
-	  o_data_fraction	     : out std_logic_vector(group_length downto 0)
+	  o_data_subtract	     : out std_logic_vector(data_bits+group_length+1-1 downto 0);--add group length bits because middle data left shifted
+	  o_data_abs_subtract	     : out std_logic_vector(data_bits+group_length+1-1 downto 0);
+	  o_filter_data		     : out std_logic_vector(data_bits+group_length+1-1 downto 0)
 	);
 end component previous_average_and_next_average;
 
@@ -26,11 +26,9 @@ constant data_bits: integer := 16;
 constant group_length: integer:=2;
 signal  i_clk_tb:  std_logic:='0';
 signal  i_data_tb: std_logic_vector(data_bits-1 downto 0):=(others=>'0');
---signal  o_data_next_tb: std_logic_vector(data_bits-1 downto 0):=(others=>'0');
---signal  o_data_previous_tb: std_logic_vector(data_bits-1 downto 0):=(others=>'0');
-signal  o_data_average_tb: std_logic_vector(data_bits-1 downto 0):=(others=>'0');
-signal  o_data_subtract_tb: std_logic_vector(data_bits-1 downto 0):=(others=>'0');
-signal  o_data_fraction_tb: std_logic_vector(group_length downto 0):=(others=>'0');
+signal  o_data_subtract_tb: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others=>'0');
+signal  o_data_abs_subtract_tb: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others=>'0');
+signal  o_filter_data_tb: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others=>'0');
 signal runsim : boolean := true;
 
 
@@ -42,9 +40,9 @@ previous_average_and_next_average_component:
 	port map(
 			i_clk =>i_clk_tb,
 			i_data=>i_data_tb,
-			o_data_average => o_data_average_tb,
 			o_data_subtract => o_data_subtract_tb,
-			o_data_fraction => o_data_fraction_tb
+			o_data_abs_subtract => o_data_abs_subtract_tb,
+			o_filter_data=> o_filter_data_tb
 );
 
     process

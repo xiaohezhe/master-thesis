@@ -1,4 +1,13 @@
-C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
+{C:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd} {1 {vcom -work work -2002 -explicit -vopt -stats=none {C:/Users/15695/Documents/master-thesis/std_moving_average/guarded IIR filter.vhd}
+QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity guarded_filter
+-- Compiling architecture behavior of guarded_filter
+
+} {} {}} C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none C:/Users/15695/Documents/master-thesis/std_moving_average/moving_average.vhd
 QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
 -- Loading package STANDARD
 -- Loading package TEXTIO
@@ -7,13 +16,13 @@ QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
 -- Compiling entity moving_average
 -- Compiling architecture rtl of moving_average
 
-} {} {}} C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none C:/Users/15695/Documents/master-thesis/std_moving_average/test_pre_next_avg.vhd
+} {} {}} C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none C:/Users/15695/Documents/master-thesis/std_moving_average/previous_average_and_next_average.vhd
 QuestaSim-64 vcom 10.6c Compiler 2017.07 Jul 26 2017
 -- Loading package STANDARD
 -- Loading package TEXTIO
 -- Loading package std_logic_1164
 -- Loading package NUMERIC_STD
--- Compiling entity test_pre_next_avg
--- Compiling architecture behavior of test_pre_next_avg
+-- Compiling entity previous_average_and_next_average
+-- Compiling architecture arc_previous_average_and_next_average of previous_average_and_next_average
 
 } {} {}}
