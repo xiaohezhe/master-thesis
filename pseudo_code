@@ -1,0 +1,46 @@
+--First approach
+--the problem here is if the large data is too large, 
+--much larger than 64 times previous data
+--after it is devided by 64, it is still very large, it will influence the accuracy
+--*************************************************************************************** 
+process(clock)
+if clock'rising edge 
+	if (new_data >= 8*previous_data_reg and previous_data_reg>0)
+		if new_data <= 64*previous_data_reg
+				filter_data_reg <= (1-1/64)*previous_data_reg + (1/64)* new_data
+ 		else
+ 				filter_data_reg <= previous_data_reg
+
+ 	elseif (previous_data_reg>0)
+ 		filter_data_reg <= (1-1/8)*previous_data_reg + (1/8)* new_data
+
+ 	else
+ 		filter_data_reg <= new_data --for the first data
+ end process
+
+ previous_data_reg <= filter_data_reg
+ filter_data <= filter_data_reg
+
+--*************************************************************************************** 
+--Second approach
+--if the new data is larger 8 times previous data and it shows up 4 times
+--double previous data to output
+--if the large new data does not show up so often, still keep the previous data
+--if the new data is smaller than 8 times previous data, use 7/8 previous data and 1/8 new data
+process(clock)
+virable: counter range 0 to 3
+if clock'rising edge
+	if (new_data >= 8*previous_data_reg and previous_data_reg>0)
+		counter=counter+1
+		if (counter < 3)
+			filter_data_reg <= previous_data_reg
+		else 
+		    filter_data_reg <= 2*previous_data_reg
+		    counter=0
+	elsif (previous_data_reg>0)
+ 		filter_data_reg <= (1-1/8)*previous_data_reg + (1/8)* new_data
+		if (counter > 0)
+ 			counter = counter-1
+ 		end if;
+ 	else
+ 		filter_data_reg <= new_data --for the first data
