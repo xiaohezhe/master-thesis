@@ -1,0 +1,161 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/15695/Documents/master-thesis/std_moving_average
+T_opt
+!s110 1613666674
+VTa^7:RH6jQke7<;Q<4gDk2
+04 8 8 work log_test behavior 1
+=1-f65f7d1e8629-602e9972-ff-880
+Z1 o-quiet -auto_acc_if_foreign -work work
+Z2 tCvgOpt 0
+n@_opt
+Z3 OL;O;10.6c;65
+T_opt1
+!s110 1613665275
+Vz?0[]IJlVnn:_4n_54IVS0
+04 7 8 work log_top behavior 1
+=1-f65f7d1e8629-602e93fb-30a-383c
+R1
+R2
+n@_opt1
+R3
+R0
+Pdptc_util_pkg
+Z4 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z5 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z6 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z7 w1613666049
+Z8 dC:/Users/15695/Documents/master-thesis/test_log
+Z9 8C:/Users/15695/Documents/master-thesis/test_log/log.vhd
+Z10 FC:/Users/15695/Documents/master-thesis/test_log/log.vhd
+l0
+L5
+V<IDnImRLWhfWGBkkC05_d0
+!s100 ^E6bAzAFIJI>mNo^2U<U:2
+Z11 OL;C;10.6c;65
+32
+b1
+Z12 !s110 1613666668
+!i10b 1
+Z13 !s108 1613666668.000000
+Z14 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/test_log/log.vhd|
+Z15 !s107 C:/Users/15695/Documents/master-thesis/test_log/log.vhd|
+!i113 0
+Z16 o-work work -2002 -explicit
+Z17 tExplicit 1 CvgOpt 0
+Bbody
+Z18 DPx4 work 13 dptc_util_pkg 0 22 <IDnImRLWhfWGBkkC05_d0
+R4
+R5
+R6
+l0
+L14
+V@5P6mO_[:[OUa?M3hD0jm0
+!s100 _jz:0H3IzWKkfbcR;`[DQ2
+R11
+32
+R12
+!i10b 1
+R13
+R14
+R15
+!i113 0
+R16
+R17
+Elog_test
+Z19 w1613666660
+R18
+R4
+R5
+R6
+R8
+Z20 8C:/Users/15695/Documents/master-thesis/test_log/log_test.vhd
+Z21 FC:/Users/15695/Documents/master-thesis/test_log/log_test.vhd
+l0
+L8
+VHO4>aALDXdcJIX7dJa25X1
+!s100 KB4VMfR<^SVDZdG[OLP>I3
+R11
+32
+R12
+!i10b 1
+R13
+Z22 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/test_log/log_test.vhd|
+Z23 !s107 C:/Users/15695/Documents/master-thesis/test_log/log_test.vhd|
+!i113 0
+R16
+R17
+Abehavior
+R18
+R4
+R5
+R6
+DEx4 work 8 log_test 0 22 HO4>aALDXdcJIX7dJa25X1
+l28
+L12
+V^bVhc=;G;E?l5Td]8T=^L0
+!s100 h>9XV1>K>ik9Nao_MK0]e2
+R11
+32
+R12
+!i10b 1
+R13
+R22
+R23
+!i113 0
+R16
+R17
+Elog_top
+Z24 w1613666560
+R18
+Z25 DPx4 ieee 15 std_logic_arith 0 22 [G314=:2zXJ`VORJe1J@Z1
+Z26 DPx4 ieee 18 std_logic_unsigned 0 22 ;eZjO2D4ZDz<]0>8AL<ne1
+R4
+R5
+R6
+R8
+Z27 8C:/Users/15695/Documents/master-thesis/test_log/log_top.vhd
+Z28 FC:/Users/15695/Documents/master-thesis/test_log/log_top.vhd
+l0
+L8
+V43iUM6QV]VI4Q3DLYB1RS1
+!s100 5HW_l3bAk8PzPk2CJZKzK3
+R11
+32
+R12
+!i10b 1
+R13
+Z29 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|C:/Users/15695/Documents/master-thesis/test_log/log_top.vhd|
+Z30 !s107 C:/Users/15695/Documents/master-thesis/test_log/log_top.vhd|
+!i113 0
+R16
+R17
+Abehavior
+R18
+R25
+R26
+R4
+R5
+R6
+DEx4 work 7 log_top 0 22 43iUM6QV]VI4Q3DLYB1RS1
+l23
+L19
+VTggl5Y64FJ?@z=FdKQQT13
+!s100 AjHLc8c_H=;N]CMAfXj_`0
+R11
+32
+R12
+!i10b 1
+R13
+R29
+R30
+!i113 0
+R16
+R17
