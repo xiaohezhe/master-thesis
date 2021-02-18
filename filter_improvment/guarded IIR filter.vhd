@@ -7,10 +7,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use work.dptc_util_pkg.all;
 
 entity guarded_filter is
 generic (
-  filter_coefficient         : integer :=6;--rigth shift bits for
+  filter_coefficient         : integer :=3;--rigth shift bits for
   data_bits                  : integer := 19);--same as the abs_subtract data length
 port (
   -- input
@@ -18,7 +19,8 @@ port (
   i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
  
   -- output
-  filter_data                : out std_logic_vector(data_bits-1 downto 0));
+  filter_data                : out std_logic_vector(data_bits-1 downto 0);
+  number_bits		     : out std_logic_vector(7 downto 0));
 end guarded_filter;
 
 architecture behavior of guarded_filter is
@@ -30,6 +32,8 @@ signal filterdata_reg	     :std_logic_vector(data_bits-1 downto 0):=(others => '
 --to save the previous data's filter output and use it to compare with the new data
 signal prev_filterdata_reg   :std_logic_vector(data_bits-1 downto 0):=(others => '0');
 signal counter: std_logic_vector(1 downto 0):=(others => '0');
+signal number_bits_reg: integer:=0;
+
 begin
 
 
@@ -61,4 +65,10 @@ end process filter_process;
 
 filter_data <= filterdata_reg;
 prev_filterdata_reg <=filterdata_reg;
+
+number_bits_reg <= dptc_log2(to_integer(signed(filterdata_reg))) when filterdata_reg >0 else
+		0;
+
+number_bits <= std_logic_vector(to_unsigned(number_bits_reg,number_bits'length));
+
 end behavior;
