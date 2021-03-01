@@ -7,6 +7,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use work.dptc_util_pkg.all;
+
 
 --get the data's previous group average value and next group average value
 entity previous_average_and_next_average is
@@ -20,7 +23,9 @@ port (
 	--output
 	  o_data_subtract	     : out std_logic_vector(data_bits+group_length+1-1 downto 0);--add group length bits because middle data left shifted
 	  o_data_abs_subtract	     : out std_logic_vector(data_bits+group_length+1-1 downto 0);
-	  o_filter_data		     : out std_logic_vector(data_bits+group_length+1-1 downto 0)
+	  o_filter_data		     : out std_logic_vector(data_bits+group_length+1-1 downto 0);
+	  o_number_bits		     : out std_logic_vector(7 downto 0);
+	  o_counter_data	     : out std_logic_vector(15 downto 0)
 	);
 end previous_average_and_next_average;
 
@@ -39,7 +44,7 @@ signal o_data_previous_reg: std_logic_vector(data_bits+group_length downto 0):=(
 signal sum_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal subtract_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal abs_subtract_reg: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others => '0');
-
+signal counter_data:std_logic_vector(15 downto 0):=(others => '0');
 
 component moving_average
 generic (
@@ -62,10 +67,11 @@ generic (
 port (
   -- input
   i_clk                      : in  std_logic;
-  i_data		     : in  std_logic_vector(data_bits-1 downto 0);--from abs_subtract data
+  i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
  
   -- output
-  filter_data                : out std_logic_vector(data_bits-1 downto 0));
+  filter_data                : out std_logic_vector(data_bits-1 downto 0);
+  number_bits		     : out std_logic_vector(7 downto 0));
 end component guarded_filter;
 
 
@@ -92,7 +98,8 @@ guarded_filter_comp_pre: guarded_filter
 port map(
 		i_clk => i_clk,
 		i_data =>abs_subtract_reg,
-	 	filter_data=>o_filter_data
+	 	filter_data=>o_filter_data,
+		number_bits=>o_number_bits
 );
 
 
@@ -113,5 +120,19 @@ o_data_subtract <=std_logic_vector(subtract_reg);
 --get the abs value for subtract value and feed into IIR FILTER
 abs_subtract_reg <=std_logic_vector(abs(subtract_reg));
 o_data_abs_subtract<=abs_subtract_reg;
+
+
+    counter_data_pro:process(i_clk)
+    begin
+	if (rising_edge(i_clk)) then
+		if(counter_data=x"FFFF") then
+			counter_data<= x"0000";
+	else
+		counter_data <= counter_data+x"0001";
+		end if;
+	end if;
+	end process counter_data_pro;
+o_counter_data <=counter_data;
+
 
 end arc_previous_average_and_next_average;

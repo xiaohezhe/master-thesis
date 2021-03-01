@@ -6,6 +6,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use work.dptc_util_pkg.all;
 
 entity guarded_filter is
 generic (
@@ -17,7 +19,8 @@ port (
   i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
  
   -- output
-  filter_data                : out std_logic_vector(data_bits-1 downto 0));
+  filter_data                : out std_logic_vector(data_bits-1 downto 0);
+  number_bits		     : out std_logic_vector(7 downto 0));
 end guarded_filter;
 
 architecture behavior of guarded_filter is
@@ -28,6 +31,8 @@ signal zero_pad		     : std_logic_vector(filter_coefficient-1 downto 0):=(others
 signal filterdata_reg	     :std_logic_vector(data_bits-1 downto 0):=(others => '0');
 --to save the previous data's filter output and use it to compare with the new data
 signal prev_filterdata_reg   :std_logic_vector(data_bits-1 downto 0):=(others => '0');
+signal counter: std_logic_vector(1 downto 0):=(others => '0');
+signal number_bits_reg: integer:=0;
 
 begin
 
@@ -35,22 +40,35 @@ begin
 
 filter_process : process(i_clk)
 begin 
---a protection to see if abs_subtract data is larger than 8 time of the previous filter output data
---do not feed the very large abs_subtract data feeded into filter
- if(rising_edge(i_clk)) then
-	if (unsigned(i_data(i_data'left downto filter_coefficient))>=unsigned(prev_filterdata_reg) and (unsigned(prev_filterdata_reg)>0)) then
-		filterdata_reg <= prev_filterdata_reg;
---after feeding into filter, get the output data: pre_data-1/8*pre_data+1/8*i_data
-	elsif (unsigned(prev_filterdata_reg)>0) then
-		filterdata_reg <= std_logic_vector(unsigned(prev_filterdata_reg) - unsigned(zero_pad&prev_filterdata_reg(prev_filterdata_reg'left downto filter_coefficient)) + unsigned(zero_pad&i_data(i_data'left downto filter_coefficient))); 
-	else
---when the prev_filterdata_reg is 0, the first data directly output
-		filterdata_reg <= i_data;
+	if(rising_edge(i_clk)) then
+		if (unsigned(i_data(i_data'left downto filter_coefficient))>=unsigned(prev_filterdata_reg) and (unsigned(prev_filterdata_reg)>0)) then
+			counter <= counter + "01";
+			if((counter<"11")) then
+				filterdata_reg <= prev_filterdata_reg;
+			else
+				--2*pre_data
+				filterdata_reg <= std_logic_vector(unsigned(prev_filterdata_reg(prev_filterdata_reg'length-1-1 downto 0)&"0"));
+				counter <= "00";
+			end if;
+		
+		elsif (unsigned(prev_filterdata_reg)>0) then
+			filterdata_reg <= std_logic_vector(unsigned(prev_filterdata_reg) - unsigned(zero_pad&prev_filterdata_reg(prev_filterdata_reg'left downto filter_coefficient)) + unsigned(zero_pad&i_data(i_data'left downto filter_coefficient)));
+			if(counter > 0) then
+			counter <= counter-"01";
+			end if;
+		else	
+		filterdata_reg <=i_data;
+		end if;
 	end if;
- end if;
-
 end process filter_process;
 --previous data's filter output is used for the input of the new data, at the same time, ouput it
+
 filter_data <= filterdata_reg;
 prev_filterdata_reg <=filterdata_reg;
+
+number_bits_reg <= dptc_log2(to_integer(signed(filterdata_reg))) when filterdata_reg >0 else
+		0;
+
+number_bits <= std_logic_vector(to_unsigned(number_bits_reg,number_bits'length));
+
 end behavior;
