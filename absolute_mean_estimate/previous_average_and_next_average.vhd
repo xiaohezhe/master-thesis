@@ -45,6 +45,8 @@ signal sum_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal subtract_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal abs_subtract_reg: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal counter_data:std_logic_vector(15 downto 0):=(others => '0');
+signal counter_data_flag: std_logic:='0';
+
 
 component moving_average
 generic (
@@ -113,22 +115,30 @@ o_data_shiftedleft(group_length+1-1 downto 0)<=(others=>'0');
 
 o_data_shiftedleft(o_data_shiftedleft'left downto group_length+1)<= oldest_data_reg_signed;
 
+--to delete at begining not accurate 9 data sampling subtract 
 --used middle data * group number*2 -  sum value
-subtract_reg <=signed(o_data_shiftedleft)-signed(sum_reg);
-o_data_subtract <=std_logic_vector(subtract_reg);
+subtract_reg <=signed(o_data_shiftedleft)-signed(sum_reg) when counter_data_flag='1' else
+	       (others => '0');
+o_data_subtract <=std_logic_vector(subtract_reg) when counter_data_flag='1' else
+	       (others => '0');
 
 --get the abs value for subtract value and feed into IIR FILTER
-abs_subtract_reg <=std_logic_vector(abs(subtract_reg));
-o_data_abs_subtract<=abs_subtract_reg;
-
+abs_subtract_reg <=std_logic_vector(abs(subtract_reg)) when counter_data_flag='1' else
+	       (others => '0');
+o_data_abs_subtract<=abs_subtract_reg when counter_data_flag='1' else
+	       (others => '0');
 
     counter_data_pro:process(i_clk)
     begin
 	if (rising_edge(i_clk)) then
-		if(counter_data=x"FFFF") then
-			counter_data<= x"0000";
-	else
-		counter_data <= counter_data+x"0001";
+		if(counter_data = x"FFFF") then
+			counter_data <=x"0000";
+		else
+			counter_data <= counter_data+x"0001";
+		end if;
+--from counter =10, the counter_data_flag will be always equal 1 and calculate the abs_subtract
+		if (counter_data >x"0009") then
+			counter_data_flag <='1';
 		end if;
 	end if;
 	end process counter_data_pro;
