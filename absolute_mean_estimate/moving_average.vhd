@@ -33,15 +33,30 @@ signal p_moving_average                 : t_moving_average:= (others => (others 
 signal r_acc                            : signed(data_bits+group_length downto 0):=(others => '0');  
 signal output_oldest_data		: signed(data_bits-1 downto 0):=(others => '0');
 
+
+
 begin
+
+--counter_oldest_data_pro: process(i_data)
+--begin
+--
+--    if (counter_oldest_data <="101") then
+--	 counter_oldest_data<="000";
+--    else
+--	  counter_oldest_data<= counter_oldest_data+"001";
+--    end if;
+--
+--end process counter_oldest_data_pro;
 
 p_average : process(i_clk)
 begin
  if(rising_edge(i_clk)) then
 --add new data and subtract the oldest data to get sum of new group value
+
     p_moving_average   <= signed(i_data)&p_moving_average(0 to p_moving_average'length-2);
     r_acc              <= r_acc + signed(i_data)-p_moving_average(p_moving_average'length-1);    
     output_oldest_data <= p_moving_average(p_moving_average'length-1);
+
   end if;
 end process p_average;
   oldest_data	     <= std_logic_vector(output_oldest_data);

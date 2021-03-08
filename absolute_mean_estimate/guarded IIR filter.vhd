@@ -15,6 +15,7 @@ generic (
   data_bits                  : integer := 19);--same as the abs_subtract data length
 port (
   -- input
+  enable		     : in std_logic;
   i_clk                      : in  std_logic;
   i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
  
@@ -41,6 +42,7 @@ begin
 filter_process : process(i_clk)
 begin 
 	if(rising_edge(i_clk)) then
+	  if (enable='1') then
 		if (unsigned(i_data(i_data'left downto filter_coefficient))>=unsigned(prev_filterdata_reg) and (unsigned(prev_filterdata_reg)>0)) then
 			counter <= counter + "01";
 			if((counter<"11")) then
@@ -59,6 +61,9 @@ begin
 		else	
 		filterdata_reg <=i_data;
 		end if;
+	  else
+		filterdata_reg <=prev_filterdata_reg;
+	end if;
 	end if;
 end process filter_process;
 --previous data's filter output is used for the input of the new data, at the same time, ouput it

@@ -46,6 +46,8 @@ signal subtract_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0'
 signal abs_subtract_reg: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal counter_data:std_logic_vector(15 downto 0):=(others => '0');
 signal counter_data_flag: std_logic:='0';
+signal clk_count_middle_data: std_logic_vector(2 downto 0):=(others => '0');
+signal clk_count_middle_data_enable: std_logic:='0';
 
 
 component moving_average
@@ -68,6 +70,7 @@ generic (
   data_bits                  : integer := 19);
 port (
   -- input
+  enable		     : in std_logic;
   i_clk                      : in  std_logic;
   i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
  
@@ -98,6 +101,7 @@ port map(
 
 guarded_filter_comp_pre: guarded_filter
 port map(
+		enable =>clk_count_middle_data_enable,
 		i_clk => i_clk,
 		i_data =>abs_subtract_reg,
 	 	filter_data=>o_filter_data,
@@ -128,6 +132,8 @@ abs_subtract_reg <=std_logic_vector(abs(subtract_reg)) when counter_data_flag='1
 o_data_abs_subtract<=abs_subtract_reg when counter_data_flag='1' else
 	       (others => '0');
 
+
+
     counter_data_pro:process(i_clk)
     begin
 	if (rising_edge(i_clk)) then
@@ -143,6 +149,23 @@ o_data_abs_subtract<=abs_subtract_reg when counter_data_flag='1' else
 	end if;
 	end process counter_data_pro;
 o_counter_data <=counter_data;
+
+
+
+process(i_clk)
+begin
+      if (rising_edge(i_clk)) then
+            if (clk_count_middle_data <= "100") then       
+                   clk_count_middle_data <= clk_count_middle_data+1;                                   
+                   clk_count_middle_data_enable <= '0';                
+            else
+                   clk_count_middle_data <= "001";
+                   clk_count_middle_data_enable <= '1';
+            end if;
+      end if;
+end process;  
+
+
 
 
 end arc_previous_average_and_next_average;
