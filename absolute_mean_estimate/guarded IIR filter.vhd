@@ -11,16 +11,17 @@ use work.dptc_util_pkg.all;
 
 entity guarded_filter is
 generic (
-  filter_coefficient         : integer :=3;--rigth shift bits for
-  data_bits                  : integer := 19);--same as the abs_subtract data length
+  data_bits                  : integer := 16;
+  filter_coefficient         : integer :=3;
+  data_bits_add 	     : integer :=19);--rigth shift bits for
 port (
   -- input
   enable		     : in std_logic;
   i_clk                      : in  std_logic;
-  i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
+  i_data		     : in  std_logic_vector(data_bits_add-1 downto 0);--abs_subtract data
  
   -- output
-  filter_data                : out std_logic_vector(data_bits-1 downto 0);
+  filter_data                : out std_logic_vector(data_bits_add-1 downto 0);
   number_bits		     : out std_logic_vector(7 downto 0));
 end guarded_filter;
 
@@ -29,9 +30,9 @@ architecture behavior of guarded_filter is
 --extra bits to keep the data length after right shift
 signal zero_pad		     : std_logic_vector(filter_coefficient-1 downto 0):=(others => '0');
 --to save the filter output data
-signal filterdata_reg	     :std_logic_vector(data_bits-1 downto 0):=(others => '0');
+signal filterdata_reg	     :std_logic_vector(data_bits_add-1 downto 0):=(others => '0');
 --to save the previous data's filter output and use it to compare with the new data
-signal prev_filterdata_reg   :std_logic_vector(data_bits-1 downto 0):=(others => '0');
+signal prev_filterdata_reg   :std_logic_vector(data_bits_add-1 downto 0):=(others => '0');
 signal counter: std_logic_vector(1 downto 0):=(others => '0');
 signal number_bits_reg: integer:=0;
 

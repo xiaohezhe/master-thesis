@@ -15,7 +15,11 @@ use work.dptc_util_pkg.all;
 entity previous_average_and_next_average is
 generic (
   data_bits                 : integer := 16;
-  group_length              : integer := 2 );
+  group_length              : integer := 2;
+  filter_coefficient        : integer :=3;
+  data_bits_add             : integer := 19;
+  counter_data_arg	    : std_logic_vector(15 downto 0):= x"0009";
+  clk_count_middle_data_arg : std_logic_vector(3 downto 0):="0100");
 port (
 	--input
 	  i_clk                      : in  std_logic;
@@ -46,7 +50,7 @@ signal subtract_reg: signed(data_bits+group_length+1-1 downto 0):=(others => '0'
 signal abs_subtract_reg: std_logic_vector(data_bits+group_length+1-1 downto 0):=(others => '0');
 signal counter_data:std_logic_vector(15 downto 0):=(others => '0');
 signal counter_data_flag: std_logic:='0';
-signal clk_count_middle_data: std_logic_vector(2 downto 0):=(others => '0');
+signal clk_count_middle_data: std_logic_vector(3 downto 0):=(others => '0');
 signal clk_count_middle_data_enable: std_logic:='0';
 
 
@@ -66,16 +70,17 @@ end component moving_average;
 
 component guarded_filter
 generic (
+  data_bits                  : integer := 16;
   filter_coefficient         : integer :=3;
-  data_bits                  : integer := 19);
+  data_bits_add 	     : integer :=19);--rigth shift bits for
 port (
   -- input
   enable		     : in std_logic;
   i_clk                      : in  std_logic;
-  i_data		     : in  std_logic_vector(data_bits-1 downto 0);--abs_subtract data
+  i_data		     : in  std_logic_vector(data_bits_add-1 downto 0);--abs_subtract data
  
   -- output
-  filter_data                : out std_logic_vector(data_bits-1 downto 0);
+  filter_data                : out std_logic_vector(data_bits_add-1 downto 0);
   number_bits		     : out std_logic_vector(7 downto 0));
 end component guarded_filter;
 
@@ -143,7 +148,7 @@ o_data_abs_subtract<=abs_subtract_reg when counter_data_flag='1' else
 			counter_data <= counter_data+x"0001";
 		end if;
 --from counter =10, the counter_data_flag will be always equal 1 and calculate the abs_subtract
-		if (counter_data >x"0009") then
+		if (counter_data >counter_data_arg) then
 			counter_data_flag <='1';
 		end if;
 	end if;
@@ -155,11 +160,11 @@ o_counter_data <=counter_data;
 process(i_clk)
 begin
       if (rising_edge(i_clk)) then
-            if (clk_count_middle_data <= "100") then       
+            if (clk_count_middle_data <= clk_count_middle_data_arg) then       
                    clk_count_middle_data <= clk_count_middle_data+1;                                   
                    clk_count_middle_data_enable <= '0';                
             else
-                   clk_count_middle_data <= "001";
+                   clk_count_middle_data <= "0001";
                    clk_count_middle_data_enable <= '1';
             end if;
       end if;
