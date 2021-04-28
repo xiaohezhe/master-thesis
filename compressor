@@ -1,0 +1,135 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+
+entity compressor is
+--j =    1,  2,3,     4,5,     6, MIN(j)=1, MAX(j)=6
+--Rj=    2,  4,8,    16,32,    64
+--sqrtRj=1   2,3      4,6        8
+generic (
+  ADC_bits                 : integer := 16;
+  j			   		       : integer := 1;
+  K					       : integer := 2;
+  sigma					   : integer := 8);
+port (
+	--input
+	  i_clk                      : in  std_logic;
+	  i_data                     : in  std_logic_vector(ADC_bits-1 downto 0);
+	  reset			     		 : in  std_logic;
+	--output--?bits
+    Ratio_out          : out integer;
+	  fRj_out				     : out std_logic_vector(j-1 downto 0)  --check fRj output
+	);
+end compressor;
+
+architecture behavior of compressor is
+
+type group_average is array (0 to 2**j-1) of signed(ADC_bits-1 downto 0);
+type acc_vec is array (0 to j) of signed(ADC_bits+j downto 0);
+type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
+type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
+type param_array is array (0 to 5) of integer;
+constant R_j : integer := 2**j; --max Ratio
+constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
+
+signal moving_average                 : group_average:= (others => (others => '0'));
+--xbar
+signal acc                            : acc_vec:=(others => (others => '0'));
+signal subtract_xg			  : sub_vec:=(others => (others => '0'));
+signal fRj_out_reg        : std_logic_vector(j-1 downto 0):= (others => '0');
+signal Ratio              : integer:= 1;
+
+begin
+function_updata_pro: process(i_clk)
+
+begin
+ if(rising_edge(i_clk)) then
+-- calculata sum of samples and first half samples
+  if reset ='0' then
+
+    moving_average   <= signed(i_data)&moving_average(0 to R_j-2); --0 to 2
+
+      for ii in 0 to j loop --j =2,3  Rj=4,8(number of samples)
+
+        acc(ii)              <= acc(ii) + signed(i_data)-moving_average(2**ii-1);  
+
+      end loop;
+-- array of 2 data - 2*input data = subtract_xg(0)
+-- array of 4 data - 2*array of 2 data = subtract_xg(1)
+
+        for ii in 1 to j loop 
+         subtract_xg(ii-1) <= abs(signed(acc(ii))-signed(acc(ii-1))-signed(acc(ii-1)));
+        end loop;
+
+    
+
+  else
+    moving_average <= (others => (others => '0'));
+    acc <=(others => (others => '0'));
+    subtract_xg <=(others => (others => '0'));
+  
+  end if;
+ end if;
+end process function_updata_pro;
+
+
+compare_process: process(i_clk)
+begin 
+for ii in 1 to j loop 
+	if (to_integer(subtract_xg(ii-1)) <= sigma*mul_parameter(ii-1)) then --8,16
+		fRj_out_reg(ii-1) <= '1';
+	else
+		fRj_out_reg(ii-1) <= '0';
+	end if;
+end loop;
+
+end process compare_process;
+
+fRj_out<=fRj_out_reg;
+
+-------------------------------------------------------------
+---------------according fRj to decide next ratio------------
+---------------there is no T and Down(Rj)--------------------
+fRj_process: process(i_clk)
+
+begin 
+if (Ratio = 1 and fRj_out_reg(0) ='0') then
+    Ratio <= Ratio-1;
+elsif (Ratio =0 and fRj_out_reg(0) ='1') then
+    Ratio <= Ratio+1;
+else
+    Ratio <=Ratio;
+end if;
+
+end process T_process;
+
+Ratio_out <=Ratio;
+--------------------------------------------------------
+
+----------------consider write T and Down(Rj)-----------
+-----------------T(0)=frj(1)=0--------------------------
+-- --------T1=T(0) and fRj(2), thus from j=2 to start----
+--------------------------------------------------------
+
+
+
+
+
+
+--def fRj_1(j,x,K,sigma):
+--    if (Rjfun(j) >1) and DownR(j,x,K,sigma):
+--        # print(0.5*Rjfun(j))
+--        # print("@@")
+--        return j-1
+
+--    elif (Rjfun(j) != Rmax) and (not(DownR((j+1),x,K,sigma))):
+--        # print("##")
+--        return j+1
+        
+--    else:
+--        # print("##")
+--        return j
+
+end behavior;
