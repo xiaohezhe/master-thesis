@@ -9,6 +9,7 @@ entity compressor is
 --Rj=    2,  4,8,    16,32,    64
 --sqrtRj=1   2,3      4,6        8
 generic (
+
   ADC_bits                 : integer := 16;
   j			   		       : integer := 1;
   K					       : integer := 2;
@@ -19,6 +20,8 @@ port (
 	  i_data                     : in  std_logic_vector(ADC_bits-1 downto 0);
 	  reset			     		 : in  std_logic;
 	--output--?bits
+    --T_0                : out std_logic;
+    --T_1                : out std_logic;
     Ratio_out          : out integer;
 	  fRj_out				     : out std_logic_vector(j-1 downto 0)  --check fRj output
 	);
@@ -27,6 +30,7 @@ end compressor;
 architecture behavior of compressor is
 
 type group_average is array (0 to 2**j-1) of signed(ADC_bits-1 downto 0);
+--type fRj_group is array(0 to j) of std_logic;--the array to save fRj
 type acc_vec is array (0 to j) of signed(ADC_bits+j downto 0);
 type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
 type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
@@ -35,11 +39,17 @@ constant R_j : integer := 2**j; --max Ratio
 constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
 
 signal moving_average                 : group_average:= (others => (others => '0'));
+signal fRj_moving_group               :  std_logic_vector(0 to j):= (others => '0');
 --xbar
 signal acc                            : acc_vec:=(others => (others => '0'));
 signal subtract_xg			  : sub_vec:=(others => (others => '0'));
 signal fRj_out_reg        : std_logic_vector(j-1 downto 0):= (others => '0');
-signal Ratio              : integer:= 1;
+signal Ratio              : integer:= j;
+--signal T_0_reg            : std_logic:='0';
+--signal T_1_reg            : std_logic:='0';
+--signal subtract_xg_reg1   : sub_vec:=(others => (others => '0'));
+--signal fRj_out_reg1       : std_logic_vector(j-1 downto 0):= (others => '0');
+signal counter_data       : integer range -1 to 999 :=-1;
 
 begin
 function_updata_pro: process(i_clk)
@@ -77,46 +87,138 @@ end process function_updata_pro;
 
 compare_process: process(i_clk)
 begin 
-for ii in 1 to j loop 
-	if (to_integer(subtract_xg(ii-1)) <= sigma*mul_parameter(ii-1)) then --8,16
-		fRj_out_reg(ii-1) <= '1';
-	else
-		fRj_out_reg(ii-1) <= '0';
-	end if;
-end loop;
+if(rising_edge(i_clk)) then
+  for ii in 1 to j loop 
+  	if (to_integer(subtract_xg(ii-1)) <= sigma*mul_parameter(ii-1)) then --8,16
+  		fRj_out_reg(ii-1) <= '1';
+  	else
+  		fRj_out_reg(ii-1) <= '0';
+  	end if;
 
+end loop;
+end if;
 end process compare_process;
 
 fRj_out<=fRj_out_reg;
 
--------------------------------------------------------------
----------------according fRj to decide next ratio------------
----------------there is no T and Down(Rj)--------------------
-fRj_process: process(i_clk)
+-----------------counter for input data index--------------------------------------------
+counter_data_pro:process(i_clk)
+  begin
+  if (rising_edge(i_clk)) then
+    if(counter_data = 999) then
+      counter_data <=0;
+    else
+      counter_data <= counter_data+1;
+    end if;
 
-begin 
-if (Ratio = 1 and fRj_out_reg(0) ='0') then
-    Ratio <= Ratio-1;
-elsif (Ratio =0 and fRj_out_reg(0) ='1') then
-    Ratio <= Ratio+1;
-else
-    Ratio <=Ratio;
-end if;
+  end if;
+  end process counter_data_pro;
 
-end process T_process;
+
+---save  fRj in the moving group to campare last old fRj and current Rj to K*sigma*Rj^1/2----
+---when j=0 fRj=1 as defult---------------------------------------------------------
+fRj_moving_group_pro: process(i_clk)
+
+begin
+ if(rising_edge(i_clk)) then
+    fRj_moving_group   <= (fRj_out_reg)&fRj_moving_group(0); --j=1
+    --Down := fRj_moving_group(1)&fRj_moving_group(0);
+    if ((fRj_moving_group(1)='1' and fRj_moving_group(0)='1') and Ratio < 1) then
+      Ratio <= Ratio+1;
+    elsif((not (fRj_moving_group(1)='1' and fRj_moving_group(0)='1')) and Ratio > 0) then
+      Ratio <= Ratio-1;
+    else
+      Ratio <=Ratio;
+    end if;
+  end if;
+end process fRj_moving_group_pro;
 
 Ratio_out <=Ratio;
+
+---------------------------------------------------------------
+-----------------according fRj to decide next ratio------------
+-----------------there is no T and Down(Rj)--------------------
+--fRj_process: process(i_clk)
+
+--begin 
+--if (Ratio = 1 and fRj_out_reg(0) ='0') then
+--    Ratio <= Ratio-1;
+--elsif (Ratio =0 and fRj_out_reg(0) ='1') then
+--    Ratio <= Ratio+1;
+--else
+--    Ratio <=Ratio;
+--end if;
+
+--end process fRj_process;
+
+--Ratio_out <=Ratio;
 --------------------------------------------------------
 
 ----------------consider write T and Down(Rj)-----------
 -----------------T(0)=frj(1)=0--------------------------
 -- --------T1=T(0) and fRj(2), thus from j=2 to start----
+--------------T(0)=frj(2), T1=T(0) and fRj(4)------------
 --------------------------------------------------------
+--T_process: process(i_clk)
+--begin 
+
+----fRj_out_reg(0) for 2 data as a group
+----fRj_out_reg(1) for 4 data as a group
+--if(rising_edge(i_clk)) then
+--  T_0_reg <= fRj_out_reg(0);
+--  T_1_reg <= fRj_out_reg(0) and fRj_out_reg(1);
+--end if;
+--end process T_process;
+
+--T_0 <= T_0_reg;
+--T_1 <= T_1_reg;
 
 
 
+--Down_Rj_process: process(i_clk)
 
+--begin 
+--if(rising_edge(i_clk)) then
+--  if (Ratio > 0 and T_1_reg ='0') then
+--      Ratio <= Ratio-1;
+--  elsif (Ratio /=2 and T_1_reg ='1') then
+--      Ratio <= Ratio+1;
+--  else
+--      Ratio <=Ratio;
+--  end if;
+--end if;
 
+--end process Down_Rj_process;
+
+--Ratio_out <=Ratio;
+
+--Down_Rj_process: process(i_clk)
+
+--begin 
+--if(rising_edge(i_clk)) then
+----  if (Ratio > 0 and T_1_reg ='0') then
+----      Ratio <= Ratio-1;
+----  elsif (Ratio /=2 and T_1_reg ='1') then
+----      Ratio <= Ratio+1;
+----  else
+----      Ratio <=Ratio;
+----  end if;
+----end if;
+
+--  if (Ratio >0 and fRj_out_reg(0)='0' ) then
+--    Ratio <= Ratio-1;
+
+--  elsif(Ratio /=2 and fRj_out_reg(1)='0') then
+--    Ratio <= Ratio+1;
+
+--  else
+--    Ratio <=Ratio;
+--  end if;
+--end if;
+--end process Down_Rj_process;
+
+--Ratio_out <=Ratio;
+ 
 
 --def fRj_1(j,x,K,sigma):
 --    if (Rjfun(j) >1) and DownR(j,x,K,sigma):
@@ -132,4 +234,7 @@ Ratio_out <=Ratio;
 --        # print("##")
 --        return j
 
+
+
 end behavior;
+
