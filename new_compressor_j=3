@@ -1,0 +1,254 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+
+entity compressor_generic is
+--j =    1,  2,3,     4,5,     6, MIN(j)=1, MAX(j)=6
+--Rj=    2,  4,8,    16,32,    64
+--sqrtRj=1   2,3      4,6        8
+generic (
+
+  ADC_bits                 : integer := 16;
+  j                  : integer := 3;
+  K                : integer := 2;
+  sigma            : integer := 8);
+port (
+  --input
+    i_clk                      : in  std_logic;
+    i_data                     : in  std_logic_vector(ADC_bits-1 downto 0);
+    reset              : in  std_logic;
+  --output--?bits
+    --T_0                : out std_logic;
+    --T_1                : out std_logic;
+    Ratio_out          : out integer;
+    fRj_out            : out std_logic_vector(j-1 downto 0);  --check fRj output
+    compressed_out     : out std_logic_vector(ADC_bits-1 downto 0);
+    compress_ratio     : out integer;
+    compress_count     : out integer range 0 to 255
+  );
+end compressor_generic;
+
+architecture behavior of compressor_generic is
+
+type group_average is array (0 to 2**j-1) of signed(ADC_bits-1 downto 0);
+--type fRj_group is array(0 to j) of std_logic;--the array to save fRj
+type acc_vec is array (0 to j) of signed(ADC_bits+j downto 0);
+type out_container is array (0 to 22) of signed(ADC_bits+j downto 0);
+type ds_out is array(0 to j) of out_container;
+type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
+type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
+type param_array is array (0 to 5) of integer;
+constant R_j : integer := 2**j; --max Ratio
+constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
+
+signal moving_average                 : group_average:= (others => (others => '0'));
+--for 2 data as a group, j=1, save 2 sum data totally
+signal fRj_moving_group               :  std_logic_vector(0 to 19):= (others => '0');
+--for 4 data as a group, j=2, save 8 sum data totally
+signal fRj_moving_group2               :  std_logic_vector(0 to 19):= (others => '0');
+
+signal fRj_moving_group3               :  std_logic_vector(0 to 19):= (others => '0');
+--xbar
+signal acc                            : acc_vec:=(others => (others => '0'));
+signal subtract_xg        : sub_vec:=(others => (others => '0'));
+signal fRj_out_reg        : std_logic_vector(j-1 downto 0):= (others => '0');
+signal Ratio              : integer:= j;
+signal output_flag        : std_logic:='0';
+signal output_flagreg        : std_logic:='0';
+signal counter_output       : integer range -1 to 999 :=-1;
+signal output_matrix             :ds_out:=(others=>(others => (others => '0')));
+signal counter_data       : integer range -1 to 999 :=-1;
+signal zero_pad           : std_logic_vector(j downto 0):=(others=>'0');
+signal compressed_out_reg    :std_logic_vector(ADC_bits-1 downto 0):=(others=>'0');
+signal compress_ratio_reg     :integer range 0 to 6:=0;
+signal compress_count_reg     :integer range 0 to 255:=0;
+signal enable_flag        : std_logic:='0';
+signal enable_flag_count        : std_logic:='0';
+
+
+begin
+function_updata_pro: process(i_clk)
+
+begin
+ if(rising_edge(i_clk)) then
+-- calculata sum of samples and first half samples
+  if reset ='0' then
+
+    moving_average   <= signed(i_data)&moving_average(0 to R_j-2); --0 to 2
+
+      for ii in 0 to j loop --j =2,3  Rj=4,8(number of samples)
+
+        acc(ii)              <= acc(ii) + signed(i_data)-moving_average(2**ii-1);  
+--output_matrix(3) saves the sum of 8 data group value
+        output_matrix(ii)           <= acc(ii)&(output_matrix(ii)(0 to 21));
+      end loop;
+-- array of 2 data - 2*input data = subtract_xg(0)
+-- array of 4 data - 2*array of 2 data = subtract_xg(1)
+
+        for ii in 1 to j loop 
+         subtract_xg(ii-1) <= abs(signed(acc(ii))-signed(acc(ii-1))-signed(acc(ii-1)));
+        end loop;
+
+    
+
+  else
+    moving_average <= (others => (others => '0'));
+    acc <=(others => (others => '0'));
+    subtract_xg <=(others => (others => '0'));
+  
+  end if;
+ end if;
+end process function_updata_pro;
+
+
+compare_process: process(i_clk)
+begin 
+if(rising_edge(i_clk)) then
+  for ii in 1 to j loop 
+    if ((subtract_xg(ii-1)) <= (sigma*mul_parameter(ii-1))) then --8,16
+      fRj_out_reg(ii-1) <= '1';
+      if (ii=1) then
+        fRj_moving_group   <= '1'&fRj_moving_group(0 to fRj_moving_group'length-2); --j=1
+      elsif (ii=2) then
+        fRj_moving_group2   <= '1'&fRj_moving_group2(0 to fRj_moving_group2'length-2); --j=2
+      elsif (ii=3) then
+        fRj_moving_group3   <= '1'&fRj_moving_group3(0 to fRj_moving_group3'length-2); --j=3
+      end if;
+    else
+      fRj_out_reg(ii-1) <= '0';
+      if (ii=1) then
+        fRj_moving_group   <= '0'&fRj_moving_group(0 to fRj_moving_group'length-2); --j=1
+      elsif (ii=2) then
+        fRj_moving_group2   <= '0'&fRj_moving_group2(0 to fRj_moving_group2'length-2); --j=2
+      elsif (ii=3) then
+        fRj_moving_group3   <= '0'&fRj_moving_group3(0 to fRj_moving_group3'length-2); --j=3
+      end if;
+    end if;
+
+end loop;
+end if;
+end process compare_process;
+
+fRj_out<=fRj_out_reg;
+
+-----------------counter for input data index--------------------------------------------
+counter_data_pro:process(i_clk)
+  begin
+  if (rising_edge(i_clk)) then
+    if(counter_data = 999) then
+      counter_data <=0;
+    else
+      counter_data <= counter_data+1;
+    end if;
+  if (counter_data = 22) then
+      enable_flag <= '1';
+  end if;
+  if (counter_data = 15) then
+      enable_flag_count <= '1';
+  end if;
+  end if;
+  end process counter_data_pro;
+
+
+---save  fRj in the moving group to campare last old fRj and current Rj to K*sigma*Rj^1/2----
+---when j=0 fRj=1 as defult---------------------------------------------------------
+fRj_moving_group_pro: process(i_clk)
+
+
+
+begin
+if (enable_flag ='1') then
+
+ if(rising_edge(i_clk)) then
+
+    if (ratio = 3) then
+      if (fRj_moving_group3(6 to 13)= x"FF" and (fRj_moving_group2(2 to 17) =x"FFFF") and (fRj_moving_group(0 to 19)=x"FFFFF")) then
+        Ratio <= 3;
+      else
+        ratio <= 2;
+      end if;
+    elsif (ratio = 2) then
+      if (fRj_moving_group3(6 to 13)= x"FF" and (fRj_moving_group2(2 to 17) =x"FFFF") and (fRj_moving_group(0 to 19)=x"FFFFF")) then
+        Ratio <= 3;
+      elsif ((fRj_moving_group2(14 to 17) =x"F") and (fRj_moving_group(12 to 19)=x"FF")) then
+        Ratio <= 2;
+      else
+        Ratio <= 1;
+      end if;
+    elsif (ratio = 1) then
+      if ((fRj_moving_group2(14 to 17) =x"F") and (fRj_moving_group(12 to 19)=x"FF")) then
+        Ratio <= 2;
+      elsif (fRj_moving_group(18 to 19) ="11") then
+        Ratio <= 1;
+      else
+        Ratio <= 0;
+      end if;
+    elsif (ratio = 0) then
+      if (fRj_moving_group(18 to 19) ="11") then
+        Ratio <= 1;
+      else
+        Ratio <= 0;
+      end if;
+    end if;
+
+  end if;
+    
+
+else
+  Ratio <= j;
+end if;
+end process fRj_moving_group_pro;
+
+Ratio_out <=Ratio;
+
+
+output_counter: process(i_clk)
+
+variable output_var : std_logic:='0';
+variable Ratio_reg  : integer:=j;
+begin
+  if(rising_edge(i_clk)) then
+    if (counter_output >= 2**Ratio_reg-1) then
+      counter_output <= 0;
+      output_flag <= '1';
+      Ratio_reg := Ratio;
+      output_var := '1';
+    else
+      output_flag <= '0';
+      output_var := '0';
+      if (enable_flag_count = '1') then
+        counter_output <= counter_output + 1;
+      end if;
+    end if;
+
+    if ((output_var = '1')) then
+      output_var := '0';
+      --if (Ratio = 0) then
+      ----Ratio =0 , compress output itself
+      --  compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(22-2**Ratio)(ADC_bits+Ratio-1 downto 0));
+      --else
+      --calculate average
+      compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(23-2**Ratio)(ADC_bits+Ratio-1 downto Ratio));
+      --end if;
+     
+      compress_ratio_reg <= Ratio;
+
+      --make sure what time compress output data
+      if (compress_count_reg <255) then
+        compress_count_reg <= compress_count_reg + 1;
+      else
+        compress_count_reg <= 0;
+      end if;
+    end if;
+  end if;
+end process output_counter;
+    --output_flag <=output_flagreg;
+compressed_out <= compressed_out_reg;
+compress_ratio <= compress_ratio_reg;
+compress_count <= compress_count_reg;
+
+
+
+end behavior;
