@@ -48,7 +48,7 @@ signal moving_average                 : group_average:= (others => (others => '0
 --for 2 data as a group, j=1, save 2 sum data totally
 signal fRj_moving_group               :  std_logic_vector(0 to 7):= (others => '0');
 --for 4 data as a group, j=2, save 8 sum data totally
-signal fRj_moving_group2               :  std_logic_vector(0 to 7):= (others => '0');
+signal fRj_moving_group2               :  std_logic_vector(0 to 3):= (others => '0');
 --xbar
 signal acc                            : acc_vec:=(others => (others => '0'));
 signal subtract_xg        : sub_vec:=(others => (others => '0'));
@@ -135,7 +135,7 @@ counter_data_pro:process(i_clk)
     else
       counter_data <= counter_data+1;
     end if;
-  if (counter_data = 10) then
+  if (counter_data = 8) then
       enable_flag <= '1';
   end if;
   --if (counter_data = 7) then
@@ -157,19 +157,21 @@ if (enable_flag ='1') then
  if(rising_edge(i_clk)) then
 
   
-    if (fRj_moving_group2(2 to 5)= "1111" and (fRj_moving_group(0 to 7) =x"FF") and Ratio>0) then
-      Ratio <= 2;  
+    if (fRj_moving_group2(0 to 3)= x"F" and (fRj_moving_group(2 to 5) =x"F")) then
+
+      if(Ratio < 2) then
+        Ratio <= Ratio+1;
+      end if;
  
-    elsif ( not((fRj_moving_group2(2 to 5)= "1111") and (fRj_moving_group(0 to 7) =x"FF")) and Ratio=2) then
-      Ratio <= 1;  
+    elsif (fRj_moving_group(4 to 5) ="11") then
+      if(Ratio < 1) then
+        Ratio <= Ratio+1;
+      elsif (Ratio > 1) then
+        Ratio <= Ratio-1;
+      end if;
 
-    elsif( not(fRj_moving_group(6 to 7) ="11") and Ratio =1) then
-      Ratio <= 0;
-
-    elsif((not(fRj_moving_group(6 to 7) ="11")) and Ratio = 0) then
-      Ratio <= 0;
-    else  
-      Ratio <= 1;
+    elsif (Ratio > 0) then
+      Ratio <= Ratio - 1;
     end if;
 
 
@@ -177,6 +179,7 @@ if (enable_flag ='1') then
 else
   Ratio <= 2;
 end if;
+
 end process fRj_moving_group_pro;
 
 Ratio_out <=Ratio;
@@ -205,11 +208,11 @@ begin
       output_var := '0';
       if (Ratio = 0) then
       --Ratio =0 , compress output itself
-        compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(10)(ADC_bits+j-1 downto 0));
+        compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(8)(ADC_bits+j-1 downto 0));
       else
       --calculate average
         --compressed_out_reg <= std_logic_vector(zero_pad(Ratio-1 downto 0))&std_logic_vector(output_matrix(Ratio)(11-2**Ratio)(ADC_bits-1 downto Ratio));
-        compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(11-2**Ratio)(ADC_bits+j-1 downto 0));
+        compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(9-2**Ratio)(ADC_bits+j-1 downto 0));
      
      end if;
      
