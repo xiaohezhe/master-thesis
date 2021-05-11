@@ -64,7 +64,7 @@ def Tfun(k,x,K,sigma):
     return T[k-2]
 
 ######################################################################################################
-
+##############need to be changed later!!!!!!!!!!!
 #(2.8) Down(Rj), the result is true or false
 def DownR(j,x,K,sigma):
     T = True
@@ -136,6 +136,7 @@ j_curr =0
 S = []# for STD
 I = []# for x axis
 J = []# for changed group length
+Jf = []# for changed group length
 
 Ix = []# for x axis
 sub_2=[]
@@ -144,14 +145,15 @@ while i +(2**j)-1 < y.size:
     # print(i)
     j = fRj_1(j,y[i:],K,sigma)# get the next sample group length
     Y = y[i:i+2**j]#data alreday downsampled
-    print(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
-    sub_2.append(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
+    # print(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
+    #sub_2.append(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
     # J.append(j) 
     # print("Y: ",Y)
     #I.append(i+(2**j-1)/2)# The x axis of mean value in figure, the middle value between first sample and last sample in one group  
     I.append(i)
     #np.floor, get round values,向下取值
 
+    Jf.append(j) 
     if count >= 2**j_curr-1:
         # X.append(np.floor(np.sum(Y))) #temporary fix for comparison
         X.append((np.mean(Y))) #get the mean of groups of samples
@@ -167,32 +169,39 @@ while i +(2**j)-1 < y.size:
     
     # i+=2**j #next start to downsampling data
     i+=1 #next start to downsampling data
-    if i>80:
-         break
+    # if i>80:
+    #      break
     
 X = np.array(X)
 S = np.array(S)
 I = np.array(I)
-sub_2=np.array(sub_2)
+#sub_2=np.array(sub_2)
 np.savetxt('/home/hezhe/Documents/old_filter_new/new_compressor/tb_data_newcompressor.csv',y,fmt='%i',delimiter=',')
 
 f = open("/home/hezhe/Documents/old_filter_new/new_compressor/ratio_out.txt","r")
 lines=f.readlines()
 ratio_out1=[]
+dense_ratio=[]
 comprsser_out=[]
 comprsser_count=[]
+sub_2=[]
+enum_count=[]
 temp_i = 0
 plot_count = []
 first = True
 offset = 0
 for i,j in enumerate(lines):
+    sub_2.append(int(j.split()[3])) 
+    enum_count.append(i)
+    dense_ratio.append(int(j.split()[4]))
     if not(int(j.split()[2]) == temp_i):
         if first:
             offset = i
             first = False
         ratio_out1.append(int(j.split()[0]))
         comprsser_out.append(int(j.split()[1]))
-        comprsser_count.append(int(j.split()[2]))  
+        comprsser_count.append(int(j.split()[2])) 
+
         #print(temp_i,int(j.split()[2]),int(j.split()[1]))
         temp_i = comprsser_count[-1]
         plot_count.append(i-offset)
@@ -213,14 +222,15 @@ plt.ylabel('y')
 plt.title('test data from vhdl file')
 plt.legend()
 plt.figure()
-plt.plot(Ix,J,'o-',label='ratio')#figure 2
+plt.plot(Ix,J,'o-',label='Python ratio, count the number of group data to change the ratio')#figure 2
 #plt.plot(ratio_out1[25:], 'x--',label=("vhdl simulation")) for j=3
-plt.plot(plot_count,ratio_out1, 'x--',label=("vhdl simulation"))# for j=2
+plt.plot(plot_count,ratio_out1, 'x--',label=("vhdl simulation, count the number of group data to change the ratio-compress ratio signal"))# for j=2
 #plt.gca().axes.xaxis.set_ticks([50,100,250,500,1000,2500, 5000])
 plt.legend()
 plt.figure()
-plt.plot(sub_2,'x--',label=("2 data subtract"))
-
+plt.plot(y,'o',label='originial data')
+plt.figure()
+plt.plot(sub_2[4:],'x--',label=("2 data subtract"))
 
 plt.gca().axes.xaxis.set_ticklabels([0,100,200,300,400,500,600,700,800,900,1000])
 plt.gca().get_xaxis().set_tick_params(which='minor', size=0)
@@ -231,4 +241,9 @@ plt.legend()
 plt.figure()
 plt.plot(I,S,label='std')#rfigure 3
 
+plt.figure()
+plt.plot(np.array(enum_count[14:])-offset+1,np.array(dense_ratio[14:])+0.00,'o-',label='VHDL ratio each clock cycle-ratio signal')#figure whatever
+plt.plot(I,Jf,'+-',label='Python Ratio each clock cycle')#figure whatever
+
+plt.legend()
 plt.show()
