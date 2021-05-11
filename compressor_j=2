@@ -26,6 +26,7 @@ port (
     fRj_out            : out std_logic_vector(j-1 downto 0);  --check fRj output
     compressed_out     : out std_logic_vector(ADC_bits+j-1 downto 0);
     compress_ratio     : out integer range 0 to 6;
+    sub_2              : out signed(ADC_bits+j downto 0);
     compress_count     : out integer range 0 to 255
   );
 end compressor;
@@ -227,7 +228,7 @@ end process output_counter;
 compressed_out <= compressed_out_reg;
 compress_ratio <= compress_ratio_reg;
 compress_count <= compress_count_reg;
-
+sub_2<=subtract_xg(0);
 
 
 end behavior;
