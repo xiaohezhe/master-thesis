@@ -29,8 +29,9 @@ port (
   --  T_1                : out std_logic;
     Ratio_out          : out integer;
     fRj_out                    : out std_logic_vector(j-1 downto 0); --check fRj output
-    compressed_out     : out std_logic_vector(ADC_bits-1 downto 0);
+    compressed_out     : out std_logic_vector(ADC_bits+j-1 downto 0);
     compress_ratio     : out integer range 0 to 6;
+    sub_2              : out signed(ADC_bits+j downto 0);
     compress_count     : out integer range 0 to 255
   );
 end component compressor;
@@ -50,9 +51,10 @@ signal runsim : boolean := true;
 signal Ratio_out_tb: integer:=j;
 signal T_0_tb: std_logic:='0';
 signal T_1_tb: std_logic:='0';
-signal  tb_compressed_out     :std_logic_vector(ADC_bits-1 downto 0);
+signal  tb_compressed_out     :std_logic_vector(ADC_bits+j-1 downto 0);
 signal  tb_compress_ratio     :integer range 0 to 6:=0;
-signal tb_compress_count     :integer range 0 to 255;
+signal tb_compress_count      :integer range 0 to 255;
+signal tb_sub_2               :signed(ADC_bits+j downto 0):=(others=>'0');
 begin
 new_compressor_component:
 
@@ -66,6 +68,7 @@ new_compressor_component:
             Ratio_out=>Ratio_out_tb,
             compressed_out=>tb_compressed_out,
             compress_ratio=>tb_compress_ratio,
+            sub_2=>tb_sub_2,
             compress_count=>tb_compress_count
             --T_0 => T_0_tb,
             --T_1=>T_1_tb
@@ -118,12 +121,14 @@ begin
 
 
 
-
-                    write(v_oline, Ratio_out_tb);
+                    write(v_oline, tb_compress_ratio);
                     write(v_oline, to_integer(unsigned(tb_compressed_out)),right,19);
                     write(v_oline, tb_compress_count,right,19);
-                    write(v_oline, Ratio_out_tb,right,19);
+
+                    write(v_oline, to_integer(tb_sub_2),right,19);
+
                     
+                    write(v_oline, Ratio_out_tb,right,19); 
 
                     writeline(file_results,v_oline);     
             end loop;
