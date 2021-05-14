@@ -10,7 +10,8 @@ x=[]
 y=[]
 c=[]
 #maximal downsampling ratio
-Rmax = 4
+Rmax = 8
+jmax = np.log2(Rmax)
 
 
 
@@ -68,9 +69,12 @@ def Tfun(k,x,K,sigma):
 #(2.8) Down(Rj), the result is true or false
 def DownR(j,x,K,sigma):
     T = True
-    for k in range (2,2+j):
-        for n in range (0,Rjfun(j)):
-            T = T and Tfun(k,x[2*Rjfun(j)+n-2**k:],K,sigma)
+    for k in range (1,1+j):#k=1,2,3
+        offset = np.sum(2**np.arange(k,jmax)).astype(int)
+        for n in range (0,Rjfun(j)+2**k-1):#n=0,1,2,3,4,5,6,7
+            T = T and fRj(x[offset+n:n+2**k+offset],k,K,sigma)
+            # print(k,offset,offset+n,n+2**k+offset)
+            # print(x[offset+n:n+2**k+offset])
             #print(j,n,k,2*Rjfun(j)+n-2**k,2*Rjfun(j)+n-2**k,x[2*Rjfun(j)+n-2**k],Tfun(k,x[2*Rjfun(j)+n-2**k:],K,sigma),T)
     return not(T)
 
@@ -126,7 +130,7 @@ x = np.arange(0,y.size) #x axis
 
 # print(y)
 
-j = 2 #initial sample group length
+j = 0 #initial sample group length
 i = 0
 K = 2 # to set trigger level
 sigma =8 # to set STD sigma
@@ -140,11 +144,16 @@ Jf = []# for changed group length
 
 Ix = []# for x axis
 sub_2=[]
+
+zp = np.zeros(Rmax-1)
+y = np.concatenate((zp,y))
+
+
 # when the left downsamling samples is smaller than the total original data, achiving 997, 3 samples left, original data is 1000 totally
 while i +(2**j)-1 < y.size: 
     # print(i)
     j = fRj_1(j,y[i:],K,sigma)# get the next sample group length
-    Y = y[i:i+2**j]#data alreday downsampled
+    Y = y[i+Rmax-1:i+2**j+Rmax-1]#data alreday downsampled
     # print(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
     #sub_2.append(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
     # J.append(j) 
@@ -169,8 +178,8 @@ while i +(2**j)-1 < y.size:
     
     # i+=2**j #next start to downsampling data
     i+=1 #next start to downsampling data
-    # if i>80:
-    #      break
+    # if i>5:
+         # break
     
 X = np.array(X)
 S = np.array(S)
@@ -242,7 +251,7 @@ plt.figure()
 plt.plot(I,S,label='std')#rfigure 3
 
 plt.figure()
-plt.plot(np.array(enum_count[14:])-offset+1,np.array(dense_ratio[14:])+0.00,'o-',label='VHDL ratio each clock cycle-ratio signal')#figure whatever
+plt.plot(np.array(enum_count[11:])-offset+1,np.array(dense_ratio[11:])+0.00,'o-',label='VHDL ratio each clock cycle-ratio signal')#figure whatever
 plt.plot(I,Jf,'+-',label='Python Ratio each clock cycle')#figure whatever
 
 plt.legend()
