@@ -24,8 +24,9 @@ port (
     --T_1                : out std_logic;
     Ratio_out          : out integer;
     fRj_out            : out std_logic_vector(j-1 downto 0);  --check fRj output
-    compressed_out     : out std_logic_vector(ADC_bits-1 downto 0);
+    compressed_out     : out std_logic_vector(ADC_bits+j-1 downto 0);
     compress_ratio     : out integer;
+    sub_2              : out signed(ADC_bits+j downto 0);
     compress_count     : out integer range 0 to 255
   );
 end compressor_generic;
@@ -35,7 +36,7 @@ architecture behavior of compressor_generic is
 type group_average is array (0 to 2**j-1) of signed(ADC_bits-1 downto 0);
 --type fRj_group is array(0 to j) of std_logic;--the array to save fRj
 type acc_vec is array (0 to j) of signed(ADC_bits+j downto 0);
-type out_container is array (0 to 22) of signed(ADC_bits+j downto 0);
+type out_container is array (0 to 23) of signed(ADC_bits+j downto 0);
 type ds_out is array(0 to j) of out_container;
 type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
 type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
@@ -45,27 +46,27 @@ constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
 
 signal moving_average                 : group_average:= (others => (others => '0'));
 --for 2 data as a group, j=1, save 2 sum data totally
-signal fRj_moving_group               :  std_logic_vector(0 to 19):= (others => '0');
+signal fRj_moving_group               :  std_logic_vector(0 to 14):= (others => '0');
 --for 4 data as a group, j=2, save 8 sum data totally
-signal fRj_moving_group2               :  std_logic_vector(0 to 19):= (others => '0');
+signal fRj_moving_group2               :  std_logic_vector(0 to 14):= (others => '0');
 
-signal fRj_moving_group3               :  std_logic_vector(0 to 19):= (others => '0');
+signal fRj_moving_group3               :  std_logic_vector(0 to 14):= (others => '0');
 --xbar
 signal acc                            : acc_vec:=(others => (others => '0'));
 signal subtract_xg        : sub_vec:=(others => (others => '0'));
 signal fRj_out_reg        : std_logic_vector(j-1 downto 0):= (others => '0');
-signal Ratio              : integer:= j;
+signal Ratio              : integer:= 0;
 signal output_flag        : std_logic:='0';
 signal output_flagreg        : std_logic:='0';
 signal counter_output       : integer range -1 to 999 :=-1;
 signal output_matrix             :ds_out:=(others=>(others => (others => '0')));
 signal counter_data       : integer range -1 to 999 :=-1;
 signal zero_pad           : std_logic_vector(j downto 0):=(others=>'0');
-signal compressed_out_reg    :std_logic_vector(ADC_bits-1 downto 0):=(others=>'0');
+signal compressed_out_reg    :std_logic_vector(ADC_bits+j-1 downto 0):=(others=>'0');
 signal compress_ratio_reg     :integer range 0 to 6:=0;
 signal compress_count_reg     :integer range 0 to 255:=0;
 signal enable_flag        : std_logic:='0';
-signal enable_flag_count        : std_logic:='0';
+--signal enable_flag_count        : std_logic:='0';
 
 
 begin
@@ -82,7 +83,7 @@ begin
 
         acc(ii)              <= acc(ii) + signed(i_data)-moving_average(2**ii-1);  
 --output_matrix(3) saves the sum of 8 data group value
-        output_matrix(ii)           <= acc(ii)&(output_matrix(ii)(0 to 21));
+        output_matrix(ii)           <= acc(ii)&(output_matrix(ii)(0 to 22));
       end loop;
 -- array of 2 data - 2*input data = subtract_xg(0)
 -- array of 4 data - 2*array of 2 data = subtract_xg(1)
@@ -142,12 +143,12 @@ counter_data_pro:process(i_clk)
     else
       counter_data <= counter_data+1;
     end if;
-  if (counter_data = 22) then
+  if (counter_data = 23) then
       enable_flag <= '1';
   end if;
-  if (counter_data = 15) then
-      enable_flag_count <= '1';
-  end if;
+  --if (counter_data = 15) then
+      --enable_flag_count <= '1';
+  --end if;
   end if;
   end process counter_data_pro;
 
@@ -163,41 +164,31 @@ if (enable_flag ='1') then
 
  if(rising_edge(i_clk)) then
 
-    if (ratio = 3) then
-      if (fRj_moving_group3(6 to 13)= x"FF" and (fRj_moving_group2(2 to 17) =x"FFFF") and (fRj_moving_group(0 to 19)=x"FFFFF")) then
-        Ratio <= 3;
-      else
-        ratio <= 2;
-      end if;
-    elsif (ratio = 2) then
-      if (fRj_moving_group3(6 to 13)= x"FF" and (fRj_moving_group2(2 to 17) =x"FFFF") and (fRj_moving_group(0 to 19)=x"FFFFF")) then
-        Ratio <= 3;
-      elsif ((fRj_moving_group2(14 to 17) =x"F") and (fRj_moving_group(12 to 19)=x"FF")) then
-        Ratio <= 2;
-      else
-        Ratio <= 1;
-      end if;
-    elsif (ratio = 1) then
-      if ((fRj_moving_group2(14 to 17) =x"F") and (fRj_moving_group(12 to 19)=x"FF")) then
-        Ratio <= 2;
-      elsif (fRj_moving_group(18 to 19) ="11") then
-        Ratio <= 1;
-      else
-        Ratio <= 0;
-      end if;
-    elsif (ratio = 0) then
-      if (fRj_moving_group(18 to 19) ="11") then
-        Ratio <= 1;
-      else
-        Ratio <= 0;
-      end if;
-    end if;
 
+      if (fRj_moving_group3(0 to 14)= x"7FFF" and (fRj_moving_group2(4 to 14) =x"7FF") and (fRj_moving_group(6 to 14)=x"1FF")) then
+        if(Ratio < 3) then
+          Ratio <= Ratio+1;
+        end if;
+      elsif(fRj_moving_group2(8 to 14) =x"7F" and fRj_moving_group(10 to 14)="11111") then
+        if (Ratio < 2) then
+           Ratio<=Ratio+1;
+        elsif(Ratio>2) then
+           Ratio <=Ratio-1;
+        end if;
+      elsif(fRj_moving_group(12 to 14)="111") then
+        if (Ratio <1) then
+          Ratio <=Ratio+1;
+        elsif (Ratio>1) then
+          Ratio <=Ratio - 1;
+        end if;
+      elsif(Ratio >0) then
+          Ratio <=Ratio-1;
+
+      end if;
   end if;
-    
 
 else
-  Ratio <= j;
+  Ratio <= 0;
 end if;
 end process fRj_moving_group_pro;
 
@@ -207,7 +198,7 @@ Ratio_out <=Ratio;
 output_counter: process(i_clk)
 
 variable output_var : std_logic:='0';
-variable Ratio_reg  : integer:=j;
+variable Ratio_reg  : integer:=0;
 begin
   if(rising_edge(i_clk)) then
     if (counter_output >= 2**Ratio_reg-1) then
@@ -218,7 +209,7 @@ begin
     else
       output_flag <= '0';
       output_var := '0';
-      if (enable_flag_count = '1') then
+      if (enable_flag = '1') then
         counter_output <= counter_output + 1;
       end if;
     end if;
@@ -230,7 +221,7 @@ begin
       --  compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(22-2**Ratio)(ADC_bits+Ratio-1 downto 0));
       --else
       --calculate average
-      compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(23-2**Ratio)(ADC_bits+Ratio-1 downto Ratio));
+      compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(17-2**Ratio)(ADC_bits+j-1 downto 0));
       --end if;
      
       compress_ratio_reg <= Ratio;
@@ -248,7 +239,7 @@ end process output_counter;
 compressed_out <= compressed_out_reg;
 compress_ratio <= compress_ratio_reg;
 compress_count <= compress_count_reg;
-
+sub_2<=subtract_xg(0);
 
 
 end behavior;
