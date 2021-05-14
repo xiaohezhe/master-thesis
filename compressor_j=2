@@ -46,14 +46,14 @@ constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
 
 signal moving_average                 : group_average:= (others => (others => '0'));
 --for 2 data as a group, j=1, save 2 sum data totally
-signal fRj_moving_group               :  std_logic_vector(0 to 7):= (others => '0');
+signal fRj_moving_group               :  std_logic_vector(0 to 6):= (others => '0');
 --for 4 data as a group, j=2, save 8 sum data totally
-signal fRj_moving_group2               :  std_logic_vector(0 to 3):= (others => '0');
+signal fRj_moving_group2               :  std_logic_vector(0 to 6):= (others => '0');
 --xbar
 signal acc                            : acc_vec:=(others => (others => '0'));
 signal subtract_xg        : sub_vec:=(others => (others => '0'));
 signal fRj_out_reg        : std_logic_vector(j-1 downto 0):= (others => '0');
-signal Ratio              : integer:= j;
+signal Ratio              : integer:= 0;
 signal output_flag        : std_logic:='0';
 signal output_flagreg        : std_logic:='0';
 signal counter_output       : integer range -1 to 999 :=-1;
@@ -135,7 +135,7 @@ counter_data_pro:process(i_clk)
     else
       counter_data <= counter_data+1;
     end if;
-  if (counter_data = 8) then
+  if (counter_data = 11) then
       enable_flag <= '1';
   end if;
   --if (counter_data = 7) then
@@ -157,13 +157,13 @@ if (enable_flag ='1') then
  if(rising_edge(i_clk)) then
 
   
-    if (fRj_moving_group2(0 to 3)= x"F" and (fRj_moving_group(2 to 5) =x"F")) then
+    if (fRj_moving_group2(0 to 6)= x"7F" and (fRj_moving_group(2 to 6) =x"1F")) then
 
       if(Ratio < 2) then
         Ratio <= Ratio+1;
       end if;
  
-    elsif (fRj_moving_group(4 to 5) ="11") then
+    elsif (fRj_moving_group(4 to 6) =x"7") then
       if(Ratio < 1) then
         Ratio <= Ratio+1;
       elsif (Ratio > 1) then
@@ -177,7 +177,7 @@ if (enable_flag ='1') then
 
   end if;
 else
-  Ratio <= 2;
+  Ratio <= 0;
 end if;
 
 end process fRj_moving_group_pro;
