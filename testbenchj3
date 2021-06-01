@@ -1,0 +1,148 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use std.textio.all;
+
+
+
+entity testbench_new_compressor_generic is
+end testbench_new_compressor_generic;
+
+architecture behavior of testbench_new_compressor_generic is
+
+
+component compressor_generic is
+generic (
+  --  cd_reg            : integer := 0;
+  ADC_bits                 : integer := 16;
+  j                  : integer := 3;
+  K                : integer := 1;
+  sigma            : integer := 8);
+port (
+  --input
+    i_clk                      : in  std_logic;
+    i_data                     : in  std_logic_vector(ADC_bits-1 downto 0);
+    reset                      : in  std_logic;
+  --output
+  --  T_0                : out std_logic;
+  --  T_1                : out std_logic;
+    Ratio_out          : out integer;
+    fRj_out                    : out std_logic_vector(j-1 downto 0); --check fRj output
+    compressed_out     : out std_logic_vector(ADC_bits+j-1 downto 0);
+    compress_ratio     : out integer;
+    sub_2              : out signed(ADC_bits+j downto 0);
+    compress_count     : out integer range 0 to 255
+  );
+end component compressor_generic;
+
+
+constant ADC_bits: integer := 16;
+constant j: integer:=3;
+constant K: integer:=2;
+constant sigma: integer:=8;
+
+
+signal  i_clk_tb:  std_logic:='0';
+signal  reset_tb:  std_logic:='0';
+signal  i_data_tb: std_logic_vector(ADC_bits-1 downto 0):=(others=>'0');
+signal  fRj_out_tb: std_logic_vector(j-1 downto 0) :=(others=>'0');
+signal runsim : boolean := true;
+signal Ratio_out_tb: integer:=j;
+signal T_0_tb: std_logic:='0';
+signal T_1_tb: std_logic:='0';
+signal  tb_compressed_out     :std_logic_vector(ADC_bits+j-1 downto 0);
+signal  tb_compress_ratio     :integer :=0;
+signal tb_compress_count     :integer range 0 to 255;
+signal tb_sub_2               :signed(ADC_bits+j downto 0):=(others=>'0');
+begin
+new_compressor_component:
+
+    component compressor_generic
+
+    port map(
+            i_clk =>i_clk_tb,
+            reset =>reset_tb,
+            i_data=>i_data_tb,       
+            fRj_out=>fRj_out_tb,
+            Ratio_out=>Ratio_out_tb,
+            compressed_out=>tb_compressed_out,
+            compress_ratio=>tb_compress_ratio,
+            sub_2=>tb_sub_2,
+            compress_count=>tb_compress_count
+            --T_0 => T_0_tb,
+            --T_1=>T_1_tb
+);
+
+    process
+    begin
+        if runsim then
+            i_clk_tb <= '1';     
+            wait for 5 ns;
+            i_clk_tb <= '0';
+            wait for 5 ns;
+        else
+            wait;
+        end if;
+    end process;
+
+    test_filedata : process
+    constant filepath:      string :="/home/hezhe/Documents/old_filter_new/new_compressor";
+    constant write_filepath:  string  :="/home/hezhe/Documents/old_filter_new/new_compressor";
+
+    file file_pointer:      text;
+    file file_results:  text;
+
+    variable line_content:  integer;
+    variable line_num:      line; 
+    variable filestatus:    file_open_status;
+    variable output_line_content: integer;
+    variable v_oline: line;
+
+begin
+    --for i_read in 1 to 2 loop
+        --wait until rising_edge(i_clk_tb);
+        --reset_tb <= '1';
+        --wait until rising_edge(i_clk_tb);
+        --wait until rising_edge(i_clk_tb);
+        --reset_tb <= '0';
+        --wait until rising_edge(i_clk_tb);
+
+        file_open(filestatus, file_pointer,filepath & "/tb_data_newcompressor.csv",read_mode);
+        
+        report filepath & "/tb_data_newcompressor.csv";
+        file_open(file_results, write_filepath & "/ratio_out.txt",write_mode);
+
+            while not ENDFILE (file_pointer) loop
+                    wait until rising_edge(i_clk_tb);  -- once per clock
+                      readline (file_pointer, line_num);  
+                      read (line_num, line_content);
+                      i_data_tb <= std_logic_vector(to_unsigned(line_content,i_data_tb'length));
+
+
+
+
+                    --write(v_oline, Ratio_out_tb);
+                    write(v_oline, tb_compress_ratio);
+                    write(v_oline, to_integer(unsigned(tb_compressed_out)),right,19);
+                    write(v_oline, tb_compress_count,right,19);
+
+                    
+                    write(v_oline, to_integer(tb_sub_2),right,19);
+
+                    
+                    write(v_oline, Ratio_out_tb,right,19);                     
+
+                    writeline(file_results,v_oline);     
+            end loop;
+
+
+      wait until rising_edge(i_clk_tb); -- the last data
+      file_close (file_pointer);
+      file_close (file_results);
+
+      report filepath & "/tb_data_newcompressor.csv closed." severity FAILURE;
+
+end process test_filedata;
+
+end  behavior;
