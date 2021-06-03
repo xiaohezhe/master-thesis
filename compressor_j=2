@@ -5,9 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 
 entity compressor is
---j =    1,  2,3,     4,5,     6, MIN(j)=1, MAX(j)=6
---Rj=    2,  4,8,    16,32,    64
---sqrtRj=1   2,3      4,6        8
+
 generic (
 
   ADC_bits                 : integer := 16;
@@ -42,11 +40,16 @@ type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
 type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
 type param_array is array (0 to 5) of integer;
 constant R_j : integer := 2**j; --max Ratio
-constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
+constant mul_parameter : param_array:= (362*K,256*K*2,724*K,256*K*4,1448*K,256*K*8); --j=6
+
+--j =    1,  2,3,     4,5,     6, MIN(j)=1, MAX(j)=6
+--Rj=    2,  4,8,    16,32,    64
+--sqrtRj=1.4   2,3      4,6        8
+--param_array=1.4*256=362,256*K*2,...
 
 signal moving_average                 : group_average:= (others => (others => '0'));
 --for 2 data as a group, j=1, save 2 sum data totally
-signal fRj_moving_group               :  std_logic_vector(0 to 6):= (others => '0');
+signal fRj_moving_group               :  std_logic_vector(0 to 8):= (others => '0');
 --for 4 data as a group, j=2, save 8 sum data totally
 signal fRj_moving_group2               :  std_logic_vector(0 to 6):= (others => '0');
 --xbar
@@ -104,7 +107,7 @@ compare_process: process(i_clk)
 begin 
 if(rising_edge(i_clk)) then
   for ii in 1 to j loop 
-    if ((subtract_xg(ii-1)) <= (sigma*mul_parameter(ii-1))) then --16,32
+    if ((subtract_xg(ii-1))*256 <= (sigma*mul_parameter(ii-1))) then --5792,8192,22.6,32
       fRj_out_reg(ii-1) <= '1';
       if (ii=1) then
         fRj_moving_group   <= '1'&fRj_moving_group(0 to fRj_moving_group'length-2); --j=1
@@ -157,7 +160,7 @@ if (enable_flag ='1') then
  if(rising_edge(i_clk)) then
 
   
-    if (fRj_moving_group2(0 to 6)= x"7F" and (fRj_moving_group(2 to 6) =x"1F")) then
+    if (fRj_moving_group2(0 to 6)= x"7F" and (fRj_moving_group(0 to 8) =x"1FF")) then
 
       if(Ratio < 2) then
         Ratio <= Ratio+1;
@@ -189,6 +192,7 @@ output_counter: process(i_clk)
 
 variable output_var : std_logic:='0';
 variable Ratio_reg  : integer:=0;
+--variable Ratio_out_var  : integer:=0;
 begin
   if(rising_edge(i_clk)) then
     if (counter_output >= 2**Ratio_reg-1) then
@@ -206,16 +210,24 @@ begin
 
     if ((output_var = '1')) then
       output_var := '0';
-      if (Ratio = 0) then
-      --Ratio =0 , compress output itself
-        compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(8)(ADC_bits+j-1 downto 0));
-      else
+
+      --if (Ratio > Ratio_out_var) then
+      --  Ratio_out_var := Ratio_out_var + 1;
+      --elsif (Ratio < Ratio_out_var) then
+      --  Ratio_out_var := Ratio_out_var - 1;
+      --end if; 
+      --if (Ratio = 0) then
+      ----Ratio =0 , compress output itself
+      --  compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(8)(ADC_bits+j-1 downto 0));
+      --else
       --calculate average
         --compressed_out_reg <= std_logic_vector(zero_pad(Ratio-1 downto 0))&std_logic_vector(output_matrix(Ratio)(11-2**Ratio)(ADC_bits-1 downto Ratio));
+        --compressed_out_reg <= std_logic_vector(output_matrix(Ratio_out_var)(9-2**Ratio_out_var)(ADC_bits+j-1 downto 0));
         compressed_out_reg <= std_logic_vector(output_matrix(Ratio)(9-2**Ratio)(ADC_bits+j-1 downto 0));
      
-     end if;
+     --end if;
      
+      --compress_ratio_reg <= Ratio_out_var;
       compress_ratio_reg <= Ratio;
 
       --make sure what time compress output data
