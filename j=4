@@ -42,15 +42,15 @@ type sub_vec is array (0 to j-1) of signed(ADC_bits+j downto 0);
 type group_average_half is array (0 to j) of signed(ADC_bits-1 downto 0);
 type param_array is array (0 to 5) of integer;
 constant R_j : integer := 2**j; --max Ratio
-constant mul_parameter : param_array:= (K,K*2,K*3,K*4,K*6,K*8); --j=6
+constant mul_parameter : param_array:= (362*K,256*K*2,724*K,256*K*4,1448*K,256*K*8); --j=6
 
 signal moving_average                 : group_average:= (others => (others => '0'));
 --for 2 data as a group, j=1, save 2 sum data totally
-signal fRj_moving_group               :  std_logic_vector(0 to 30):= (others => '0');
+signal fRj_moving_group               :  std_logic_vector(0 to 44):= (others => '0');
 --for 4 data as a group, j=2, save 8 sum data totally
-signal fRj_moving_group2               :  std_logic_vector(0 to 30):= (others => '0');
+signal fRj_moving_group2               :  std_logic_vector(0 to 42):= (others => '0');
 
-signal fRj_moving_group3               :  std_logic_vector(0 to 30):= (others => '0');
+signal fRj_moving_group3               :  std_logic_vector(0 to 38):= (others => '0');
 signal fRj_moving_group4               :  std_logic_vector(0 to 30):=(others => '0');
 --xbar
 signal acc                            : acc_vec:=(others => (others => '0'));
@@ -109,7 +109,7 @@ compare_process: process(i_clk)
 begin 
 if(rising_edge(i_clk)) then
   for ii in 1 to j loop 
-    if ((subtract_xg(ii-1)) <= (sigma*mul_parameter(ii-1))) then --8,16
+    if ((subtract_xg(ii-1)*256) <= (sigma*mul_parameter(ii-1))) then --8,16
       fRj_out_reg(ii-1) <= '1';
       if (ii=1) then
         fRj_moving_group   <= '1'&fRj_moving_group(0 to fRj_moving_group'length-2); --j=1
@@ -169,17 +169,17 @@ if (enable_flag ='1') then
 
  if(rising_edge(i_clk)) then
 
-      if (fRj_moving_group4(0 to 30)= x"7FFFFFFF" and fRj_moving_group3(8 to 30)= x"7FFFFF" and (fRj_moving_group2(12 to 30) =x"7FFFF") and (fRj_moving_group(14 to 30)=x"1FFFF")) then
+      if (fRj_moving_group4(0 to 30)= x"7FFFFFFF" and fRj_moving_group3(0 to 38)= x"7FFFFFFFFF" and (fRj_moving_group2(0 to 42) =x"7FFFFFFFFFF") and (fRj_moving_group(0 to 44)=x"1FFFFFFFFFFF")) then
         if(Ratio < 4) then
           Ratio <= Ratio+1;
         end if;
-      elsif (fRj_moving_group3(16 to 30)= x"7FFF" and (fRj_moving_group2(20 to 30) =x"7FF") and (fRj_moving_group(22 to 30)=x"1FF")) then
+      elsif (fRj_moving_group3(16 to 30)= x"7FFF" and (fRj_moving_group2(16 to 34) =x"7FFFF") and (fRj_moving_group(16 to 36)=x"1FFFFF")) then
         if(Ratio < 3) then
           Ratio <= Ratio+1;
         elsif(Ratio>3) then
            Ratio <=Ratio-1;
         end if;
-      elsif(fRj_moving_group2(24 to 30) =x"7F" and fRj_moving_group(26 to 30)="11111") then
+      elsif(fRj_moving_group2(24 to 30) =x"7F" and fRj_moving_group(24 to 32)=x"1FF") then
         if (Ratio < 2) then
            Ratio<=Ratio+1;
         elsif(Ratio>2) then
