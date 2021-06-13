@@ -1,0 +1,284 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+
+
+
+
+x=[]
+y=[]
+c=[]
+#maximal downsampling ratio
+Rmax = 4
+jmax = np.log2(Rmax) 
+
+
+
+
+#write the fomulas from thesis to get the changed Rj
+
+#K,sigma,xbar,gbar -> fRj -> C(i) -> T(i) -> Down(Rj) -> Rj+1 to get selective downsampling Ratios
+
+######################################################################################################
+#The length of each group Rj
+def Rjfun(j):
+    return int(2**j)
+######################################################################################################
+
+#formula (2.9) xbar
+def xbar(Rj,x):
+    ##return np.sum(x)/Rj
+    return np.sum(x)
+######################################################################################################
+
+#formula (2.10) gbar
+def gbar(Rj,x):
+    #return 2*np.sum(x[:x.size//2])/Rj
+    return 2*np.sum(x[:x.size//2])
+
+######################################################################################################
+
+#（2.10） defination fRj
+def fRj(x,j,K,sigma):
+    ##return (np.abs(xbar(Rjfun(j),x)-gbar(Rjfun(j),x))) <= K*sigma/np.sqrt(float(Rjfun(j)))
+    mulvec = [362, 256*2, 724, 256*4, 1448, 256*8]
+    #constant mul_parameter : param_array:= (362*K,256*K*2,724*K,256*K*4,1448*K,256*K*8);
+    return (256*np.abs(xbar(Rjfun(j),x)-gbar(Rjfun(j),x))) <= K*sigma*mulvec[j-1]
+######################################################################################################
+
+#(2.4) C(i)
+def Cfun(x,K,sigma):
+    c=[]
+    for j in range(1,7): #set the Lmax=64
+        c.append(fRj(x[0:2**j],j,K,sigma))
+    return c
+
+######################################################################################################
+
+#(2.4) T(i)
+def Tfun(k,x,K,sigma):
+    C = Cfun(x,K,sigma)
+    T = np.zeros_like(C)
+    T[0] = C[0]
+    for i in range(1,len(C)):
+        T[i] = T[i-1] and C[i]
+    return T[k-2]
+
+######################################################################################################
+##############need to be changed later!!!!!!!!!!!
+#(2.8) Down(Rj), the result is true or false
+def DownR(j,x,K,sigma):
+    T = True
+    offset2 = np.sum(2**np.arange(j,jmax)).astype(int)#0
+    for k in range (1,1+j):#k=1,2,3
+        offset = np.sum(2**np.arange(k,jmax)).astype(int)#0
+
+        for n in range (offset2,offset+2*Rjfun(j)-1):#n=0,1,2....14
+            # T = T and fRj(x[offset+n:n+2**k+offset],k,K,sigma)
+            T = T and fRj(x[n:n+2**k],k,K,sigma)
+            # print(k,offset,offset+n,n+2**k+offset)
+            # print(x[offset+n:n+2**k+offset])
+            #print(j,n,k,2*Rjfun(j)+n-2**k,2*Rjfun(j)+n-2**k,x[2*Rjfun(j)+n-2**k],Tfun(k,x[2*Rjfun(j)+n-2**k:],K,sigma),T)
+    return not(T)
+
+######################################################################################################
+
+#next selective Ratio after Rj, 3 conditions 
+def fRj_1(j,x,K,sigma):
+    if (Rjfun(j) >1) and DownR(j,x,K,sigma):
+        # print(0.5*Rjfun(j))
+        # print("@@")
+        return j-1
+
+    elif (Rjfun(j) != Rmax) and (not(DownR((j+1),x,K,sigma))):
+        # print("##")
+        return j+1
+        
+    else:
+        # print("##")
+        return j
+######################################################################################################       
+###################################################################################################### 
+
+#import the date of website, file "wave" and delete the line breaks
+a_file = open("wave.txt", "r")
+
+string_without_line_breaks = ""
+for line in a_file:
+  stripped_line = line.rstrip()
+  string_without_line_breaks += stripped_line
+a_file.close()
+
+######################################################################################################
+###################################################################################################### 
+
+# delte the data comma
+msg = string_without_line_breaks
+z = [int(x.strip()) for x in msg.split(',')]
+y = np.array(z)
+x = np.arange(0,y.size) #x axis 
+#print("y STD, Mean:",np.std(y[:200]),np.mean(y[:200]))
+
+######################################################################################################
+
+# f1 = open("tb_data_newcompressor1.csv","r")
+# lines1=f1.readlines()
+# y1=[]
+
+# for i_1 in (lines1):
+#     y1.append(int(i_1))   
+# f1.close()
+
+# y=np.array(y1)
+
+# print(y)
+
+j = 0 #initial sample group length
+i = 0
+K = 3 # to set trigger level
+sigma =8 # to set STD sigma
+X = []# for mean value of sample groups
+count =0
+j_curr =0
+S = []# for STD
+I = []# for x axis
+J = []# for changed group length
+Jf = []# for changed group length
+
+Ix = []# for x axis
+sub_2=[]
+
+zp = np.zeros(Rmax-1)
+y = np.concatenate((zp,y))
+
+
+# when the left downsamling samples is smaller than the total original data, achiving 997, 3 samples left, original data is 1000 totally
+while i +(2**j)-1 < y.size: 
+    # print(i)
+    j = fRj_1(j,y[i:],K,sigma)# get the next sample group length
+    Y = y[i+Rmax-1:i+2**j+Rmax-1]#data alreday downsampled
+    # print(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
+    #sub_2.append(abs(sum(Y)-2*sum(Y[:len(Y)//2])))
+    # J.append(j) 
+    # print("Y: ",Y)
+    #I.append(i+(2**j-1)/2)# The x axis of mean value in figure, the middle value between first sample and last sample in one group  
+    I.append(i)
+    #np.floor, get round values,向下取值
+
+    Jf.append(j) 
+    if count >= 2**j_curr-1:
+        # X.append(np.floor(np.sum(Y))) #temporary fix for comparison
+        X.append((np.mean(Y))) #get the mean of groups of samples
+        Ix.append(i)
+        J.append(j) 
+
+        j_curr=j
+        count=0
+    else:
+        count+=1
+    S.append(np.std(Y))  #get the STD of groups of samples
+    # print("j,i, X[i],S[i]: ",j,i)
+    
+    # i+=2**j #next start to downsampling data
+    i+=1 #next start to downsampling data
+    # if i>10:
+         # break
+    
+X = np.array(X)
+S = np.array(S)
+I = np.array(I)
+#sub_2=np.array(sub_2)
+np.savetxt('/home/hezhe/Documents/old_filter_new/new_compressor/tb_data_newcompressor.csv',y,fmt='%i',delimiter=',')
+
+f = open("/home/hezhe/Documents/old_filter_new/new_compressor/ratio_out.txt","r")
+#f = open("/home/hezhe/Desktop/backup_code/new_compressor/ratio_out1.txt","r")
+lines=f.readlines()
+ratio_out1=[]
+dense_ratio=[]
+comprsser_out=[]
+comprsser_count=[]
+sub_2=[]
+enum_count=[]
+temp_i = 0
+plot_count = []
+first = True
+offset = 0
+for i,j in enumerate(lines):
+     sub_2.append(int(j.split()[3])) 
+     enum_count.append(i)
+     dense_ratio.append(int(j.split()[4]))
+     if not(int(j.split()[2]) == temp_i):
+        if first:
+            offset = i
+            first = False
+        ratio_out1.append(int(j.split()[0]))
+        comprsser_out.append(int(j.split()[1]))
+        comprsser_count.append(int(j.split()[2])) 
+
+        # print(temp_i,int(j.split()[2]),int(j.split()[1]))
+        temp_i = comprsser_count[-1]
+        plot_count.append(i-offset)
+f.close()
+
+
+
+#print(X.shape,S.shape,I.shape)
+plt.figure()
+plt.plot(y[15:],'r+',label='Raw data trace')
+plt.xlabel('Sample Index')
+plt.ylabel('Signal data')
+plt.legend()
+#plt.plot(I,X,'+',label='reconstructeda')
+# plt.plot(comprsser_out[14:], '-', label='vhdl compressor output')# for j=2
+###plt.plot(comprsser_out[26:], '-', label='vhdl compressor output') for j=3
+plt.figure()
+plt.plot(plot_count,np.divide(comprsser_out,np.power(2,ratio_out1)), '-', label='vhdl compressor output')# for j=2
+plt.scatter(Ix,X,c="black",marker='o',label='Downsampled data trace')
+plt.plot(y[1:],'r+',label='Raw data trace')
+plt.xlabel('Sample Index')
+plt.ylabel('Magnitude')
+
+np.save("x3.npy",plot_count)
+#np.save("y3.npy",np.divide(compresser_out,np.power(2,ratio_out1)))
+np.save("xp3.npy",Ix)
+np.save("yp3.npy",X)
+
+
+plt.legend()
+plt.figure()
+plt.plot(Ix,J,'o-',label='Python simulation, j')#figure 2
+#plt.plot(ratio_out1[25:], 'x--',label=("vhdl simulation")) for j=3
+plt.plot(plot_count,ratio_out1, 'x--',label=("vhdl simulation, j"))# for j=2
+plt.xlabel('Sample Index')
+plt.ylabel('j $(log_{2}R_{j})$')
+
+np.save("xr3.npy",plot_count)
+np.save("yr3.npy",ratio_out1)
+np.save("xrp3.npy",Ix)
+np.save("yrp3.npy",J)
+
+
+#plt.gca().axes.xaxis.set_ticks([50,100,250,500,1000,2500, 5000])
+plt.legend()
+plt.figure()
+plt.plot(y,'o',label='originial data')
+plt.figure()
+#plt.plot(sub_2[4:],'x--',label=("2 data subtract"))
+np.save("o_data.npy",y)
+
+# plt.gca().axes.xaxis.set_ticklabels([0,100,200,300,400,500,600,700,800,900,1000])
+# plt.gca().get_xaxis().set_tick_params(which='minor', size=0)
+# plt.gca().get_xaxis().set_tick_params(which='minor', width=0) 
+# plt.gca().get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+# plt.gca().ticklabel_format(style='plain',axis='x',useOffset=False)
+plt.legend()
+plt.figure()
+plt.plot(I,S,label='std')#rfigure 3
+print("offset: ",offset)
+plt.figure()
+plt.plot(np.array(enum_count[11:])-offset+1,np.array(dense_ratio[11:])+0.00,'o-',label='VHDL ratio each clock cycle-ratio signal')#figure whatever
+plt.plot(I,Jf,'+-',label='Python Ratio each clock cycle')#figure whatever
+
+plt.legend()
+plt.show()
