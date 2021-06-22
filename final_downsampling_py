@@ -225,54 +225,74 @@ f.close()
 
 #print(X.shape,S.shape,I.shape)
 plt.figure()
-#plt.plot(y,'o',label='originial data')
+plt.plot(y[15:],'r+',label='Raw data trace')
+plt.xlabel('Sample Index')
+plt.ylabel('Signal data')
+plt.legend()
 #plt.plot(I,X,'+',label='reconstructeda')
 # plt.plot(comprsser_out[14:], '-', label='vhdl compressor output')# for j=2
-##plt.plot(comprsser_out[26:], '-', label='vhdl compressor output') for j=3
+###plt.plot(comprsser_out[26:], '-', label='vhdl compressor output') for j=3
+plt.figure()
 plt.plot(plot_count,np.divide(comprsser_out,np.power(2,ratio_out1)), '-', label='vhdl compressor output')# for j=2
-plt.scatter(Ix,X,c="black",marker='+',label='python compressor output')
-plt.xlabel('')
-plt.ylabel('Group Mean')
+plt.scatter(Ix,X,c="black",marker='o',label='Downsampled data trace')
+plt.plot(y[1:],'r+',label='Raw data trace')
+plt.xlabel('Sample Index')
+plt.ylabel('Magnitude')
+
+np.save("x3.npy",plot_count)
+#np.save("y3.npy",np.divide(compresser_out,np.power(2,ratio_out1)))
+np.save("xp3.npy",Ix)
+np.save("yp3.npy",X)
+
 
 plt.legend()
 plt.figure()
-plt.plot(Ix,J,'o-',label='Python simulation')#figure 2
+plt.plot(Ix,J,'o-',label='Python simulation, j')#figure 2
 #plt.plot(ratio_out1[25:], 'x--',label=("vhdl simulation")) for j=3
-plt.plot(plot_count,ratio_out1, 'x--',label=("vhdl simulation"))# for j=2
-#plt.gca().axes.xaxis.set_ticks([50,100,250,500,1000,2500, 5000])
+plt.plot(plot_count,ratio_out1, 'x--',label=("vhdl simulation, j"))# for j=2
+plt.xlabel('Sample Index')
 plt.ylabel('j $(log_{2}R_{j})$')
+
+np.save("xr3.npy",plot_count)
+np.save("yr3.npy",ratio_out1)
+np.save("xrp3.npy",Ix)
+np.save("yrp3.npy",J)
+
+
+#plt.gca().axes.xaxis.set_ticks([50,100,250,500,1000,2500, 5000])
 plt.legend()
 plt.figure()
 plt.plot(y,'o',label='originial data')
 plt.figure()
-plt.plot(sub_2[4:],'x--',label=("2 data subtract"))
+#plt.plot(sub_2[4:],'x--',label=("2 data subtract"))
+np.save("o_data.npy",y)
 
-plt.gca().axes.xaxis.set_ticklabels([0,100,200,300,400,500,600,700,800,900,1000])
-plt.gca().get_xaxis().set_tick_params(which='minor', size=0)
-plt.gca().get_xaxis().set_tick_params(which='minor', width=0) 
-plt.gca().get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-plt.gca().ticklabel_format(style='plain',axis='x',useOffset=False)
+# plt.gca().axes.xaxis.set_ticklabels([0,100,200,300,400,500,600,700,800,900,1000])
+# plt.gca().get_xaxis().set_tick_params(which='minor', size=0)
+# plt.gca().get_xaxis().set_tick_params(which='minor', width=0) 
+# plt.gca().get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+# plt.gca().ticklabel_format(style='plain',axis='x',useOffset=False)
 plt.legend()
 plt.figure()
 plt.plot(I,S,label='std')#rfigure 3
-
+print("offset: ",offset)
 plt.figure()
 plt.plot(np.array(enum_count[11:])-offset+1,np.array(dense_ratio[11:])+0.00,'o-',label='VHDL ratio each clock cycle-ratio signal')#figure whatever
 plt.plot(I,Jf,'+-',label='Python Ratio each clock cycle')#figure whatever
 
-############################################################################################################
-a=[]
-for x in range(1000):
-    a.append(x)
+plt.legend()
 
-
+x = np.arange(0,y.size)
+#**************************************************************************************************************************************
 
 f1=plt.figure()
 ax11 = f1.add_subplot(211)
 ax12 = f1.add_subplot(212)
 
 ax11.scatter(Ix,X,c="black",marker='o',s=50,label='Downsampled data trace')
-ax11.scatter(a,y[15:],c="red",marker='+',s=50,label='Raw data trace')
+ax11.scatter(x[:-15],y[15:],c="red",marker='+',s=50,label='Raw data trace')
+
+
 ax11.set_ylabel('Magnitude')
 ax11.legend()
 
@@ -284,4 +304,5 @@ ax12.set_ylabel('j $(log_{2}R_{j})$')
 
 
 ax12.legend()
+plt.show()
 plt.show()
